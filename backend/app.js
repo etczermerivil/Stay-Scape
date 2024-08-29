@@ -69,7 +69,9 @@ app.use((err, _req, _res, next) => {
 
 app.use((err, _req, res, _next) => {
   res.status(err.status || 500);
-  console.error(err);
+  if (!isProduction) {
+    console.error(err);  // Only log in non-production environments
+  }
   res.json({
     title: err.title || 'Server Error',
     message: err.message,
@@ -77,5 +79,6 @@ app.use((err, _req, res, _next) => {
     stack: isProduction ? null : err.stack
   });
 });
+
 
 module.exports = app;
