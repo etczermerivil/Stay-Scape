@@ -28,12 +28,12 @@ module.exports = {
         type: Sequelize.STRING.BINARY,
         allowNull: false
       },
-      firstName: {  // New attribute
-        type: Sequelize.STRING(50),  // Adjust length as needed
+      firstName: {
+        type: Sequelize.STRING(50),
         allowNull: false
       },
-      lastName: {  // New attribute
-        type: Sequelize.STRING(50),  // Adjust length as needed
+      lastName: {
+        type: Sequelize.STRING(50),
         allowNull: false
       },
       createdAt: {
