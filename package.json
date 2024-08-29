@@ -21,5 +21,9 @@
   "bugs": {
     "url": "https://github.com/etczermerivil/Rgb-bnb/issues"
   },
-  "homepage": "https://github.com/etczermerivil/Rgb-bnb#readme"
+  "homepage": "https://github.com/etczermerivil/Rgb-bnb#readme",
+  "dependencies": {
+    "sequelize": "^6.37.3",
+    "sequelize-cli": "^6.6.2"
+  }
 }
