@@ -72,6 +72,13 @@ app.use((err, _req, res, _next) => {
   if (!isProduction) {
     console.error(err);  // Only log in non-production environments
   }
+
+  if (err.message === 'Authentication required') {
+    return res.json({
+      message: err.message
+    });
+  }
+
   res.json({
     title: err.title || 'Server Error',
     message: err.message,

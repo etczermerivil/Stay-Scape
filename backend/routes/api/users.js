@@ -2,12 +2,10 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
-
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
 
 const router = express.Router();
-
 
 const validateSignup = [
   check('email')
@@ -37,7 +35,7 @@ const validateSignup = [
   handleValidationErrors
 ];
 
-
+// Signup route
 router.post(
   '/',
   validateSignup,
@@ -68,5 +66,20 @@ router.post(
     });
   }
 );
+
+// Protected route to get the user's profile (requires authentication)
+router.get('/profile', requireAuth, async (req, res) => {
+  const { user } = req;
+
+  return res.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName
+    }
+  });
+});
 
 module.exports = router;

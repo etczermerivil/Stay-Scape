@@ -3,8 +3,7 @@ const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
-
-const { setTokenCookie, restoreUser } = require('../../utils/auth');
+const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
 
 const router = express.Router();
@@ -72,6 +71,8 @@ router.delete(
 // Restore session user
 router.get(
   '/',
+  restoreUser, // Optional: You can remove this if you don't need to restore user session before checking auth
+  requireAuth, // Requires authentication
   (req, res) => {
     const { user } = req;
     if (user) {
