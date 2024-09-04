@@ -66,12 +66,13 @@ router.delete(
 );
 
 // Restore session user
+// Restore session user
 router.get(
   '/',
-  restoreUser,
-  requireAuth,
+  restoreUser, // Middleware to restore user session if a user is logged in
   (req, res) => {
     const { user } = req;
+
     if (user) {
       const safeUser = {
         id: user.id,
@@ -80,11 +81,16 @@ router.get(
         email: user.email,
         username: user.username,
       };
+
       return res.json({
         user: safeUser
       });
-    } else return res.json({ user: null });
+    } else {
+
+      return res.json({ user: null });
+    }
   }
 );
+
 
 module.exports = router;
