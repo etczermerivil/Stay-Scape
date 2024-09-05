@@ -30,15 +30,7 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
-        email: 'user2@user.io',
-        username: 'FakeUser2',
-        hashedPassword: bcrypt.hashSync('password3'),
-        firstName: 'Fake',
-        lastName: 'User2',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
+
     ], { validate: true });
   },
 
