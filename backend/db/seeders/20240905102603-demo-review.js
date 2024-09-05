@@ -7,20 +7,30 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Get the spot IDs dynamically from the Spots table
+    const spots = await queryInterface.sequelize.query(
+      `SELECT id FROM ${options.schema ? `"${options.schema}".` : ''}"Spots"`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    );
+
+    // Find the correct spotId values
+    const spotId1 = spots[0].id;  // First spot
+    const spotId2 = spots[1].id;  // Second spot
+
     options.tableName = 'Reviews';
     return queryInterface.bulkInsert(options, [
       {
-        spotId: 1,
+        spotId: spotId1,
         userId: 1,
-        review: 'Great place, very clean and well-located!',
+        review: 'Great spot!',
         stars: 5,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        spotId: 2,
+        spotId: spotId2,
         userId: 2,
-        review: 'Had a wonderful time, highly recommend.',
+        review: 'Loved it!',
         stars: 4,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -32,7 +42,7 @@ module.exports = {
     options.tableName = 'Reviews';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      spotId: { [Op.in]: [1, 2] }
+      spotId: { [Op.in]: [spotId1, spotId2] }
     }, {});
   }
 };

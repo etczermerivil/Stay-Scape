@@ -7,10 +7,20 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Get the user IDs dynamically from the Users table
+    const users = await queryInterface.sequelize.query(
+      `SELECT id FROM ${options.schema ? `"${options.schema}".` : ''}"Users"`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    );
+
+    // Find the correct user IDs
+    const ownerId1 = users[0].id;  // First user
+    const ownerId2 = users[1].id;  // Second user
+
     options.tableName = 'Spots';
     return queryInterface.bulkInsert(options, [
       {
-        ownerId: 1,
+        ownerId: ownerId1,  // Dynamically fetched
         address: '123 Demo St',
         city: 'Demo City',
         state: 'DC',
@@ -24,7 +34,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        ownerId: 2,
+        ownerId: ownerId2,  // Dynamically fetched
         address: '456 Example Ave',
         city: 'Sample City',
         state: 'SC',
@@ -44,7 +54,7 @@ module.exports = {
     options.tableName = 'Spots';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      name: { [Op.in]: ['Demo Spot 1', 'Demo Spot 2'] }
+      ownerId: { [Op.in]: [ownerId1, ownerId2] }  // Dynamically fetched
     }, {});
   }
 };
