@@ -1,3 +1,5 @@
+require('dotenv').config(); // Ensure dotenv is loaded
+
 const { sequelize } = require('./db/models');
 
 sequelize.showAllSchemas({ logging: false }).then(async (data) => {
