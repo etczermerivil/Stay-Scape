@@ -33,6 +33,8 @@ module.exports = {
         updatedAt: new Date()
       }
     ], { validate: true });
+
+    console.log("Users inserted successfully.");
   },
 
   async down(queryInterface, Sequelize) {
