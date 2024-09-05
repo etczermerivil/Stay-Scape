@@ -66,7 +66,6 @@ router.delete(
 );
 
 // Restore session user
-// Restore session user
 router.get(
   '/',
   restoreUser, // Middleware to restore user session if a user is logged in

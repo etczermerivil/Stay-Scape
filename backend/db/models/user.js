@@ -4,12 +4,21 @@ const { Model, Validator } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-
+      // Define associations here
+      User.hasMany(models.Spot, { foreignKey: 'ownerId' });
+      User.hasMany(models.Review, { foreignKey: 'userId' });
+      User.hasMany(models.Booking, { foreignKey: 'userId' });
     }
   };
 
   User.init(
     {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       username: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -25,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true, // Adding unique constraint for email
         validate: {
           len: [3, 256],
           isEmail: true
@@ -50,6 +60,16 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           len: [1, 50]
         }
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
       }
     },
     {
