@@ -8,6 +8,7 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
+// Validation for login
 const validateLogin = [
   check('credential')
     .exists({ checkFalsy: true })
@@ -26,6 +27,7 @@ router.post(
   async (req, res, next) => {
     const { credential, password } = req.body;
 
+    // Find user by username or email
     const user = await User.unscoped().findOne({
       where: {
         [Op.or]: {
@@ -35,9 +37,12 @@ router.post(
       }
     });
 
+    // Invalid credentials error
     if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
-      // Directly send the response without adding title or stack
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({
+        message: 'Invalid credentials',
+        errors: { credential: 'Email or username is required', password: 'Password is required' }
+      });
     }
 
     const safeUser = {
@@ -56,16 +61,16 @@ router.post(
   }
 );
 
-// Log out
+// Log out (authentication required)
 router.delete(
   '/',
+  requireAuth, // Authentication required to log out
   (_req, res) => {
     res.clearCookie('token');
     return res.json({ message: 'success' });
   }
 );
 
-// Restore session user
 // Restore session user
 router.get(
   '/',
@@ -86,11 +91,9 @@ router.get(
         user: safeUser
       });
     } else {
-
       return res.json({ user: null });
     }
   }
 );
-
 
 module.exports = router;

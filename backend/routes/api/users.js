@@ -7,6 +7,7 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
+// Validation for signup
 const validateSignup = [
   check('email')
     .exists({ checkFalsy: true })
@@ -27,11 +28,11 @@ const validateSignup = [
   check('firstName')
     .exists({ checkFalsy: true })
     .isLength({ min: 1 })
-    .withMessage('Please provide a first name.'),
+    .withMessage('First Name is required.'),
   check('lastName')
     .exists({ checkFalsy: true })
     .isLength({ min: 1 })
-    .withMessage('Please provide a last name.'),
+    .withMessage('Last Name is required.'),
   handleValidationErrors
 ];
 
@@ -41,8 +42,25 @@ router.post(
   validateSignup,
   async (req, res) => {
     const { email, password, username, firstName, lastName } = req.body;
+
+    // Check if email or username already exists
+    const existingUserByEmail = await User.findOne({ where: { email } });
+    const existingUserByUsername = await User.findOne({ where: { username } });
+
+    if (existingUserByEmail || existingUserByUsername) {
+      return res.status(500).json({
+        message: 'User already exists',
+        errors: {
+          email: existingUserByEmail ? 'User with that email already exists' : undefined,
+          username: existingUserByUsername ? 'User with that username already exists' : undefined
+        }
+      });
+    }
+
+    // Hash the password
     const hashedPassword = bcrypt.hashSync(password);
 
+    // Create new user
     const user = await User.create({
       email,
       username,
@@ -59,15 +77,17 @@ router.post(
       lastName: user.lastName
     };
 
+    // Set the token cookie
     await setTokenCookie(res, safeUser);
 
-    return res.json({
+    // Return the new user data
+    return res.status(201).json({
       user: safeUser
     });
   }
 );
 
-// Protected route to get the user's profile (requires authentication)
+// Get the current user’s profile (authentication required)
 router.get('/profile', requireAuth, async (req, res) => {
   const { user } = req;
 
@@ -79,6 +99,25 @@ router.get('/profile', requireAuth, async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName
     }
+  });
+});
+
+// Get the current logged-in user (authentication required)
+router.get('/current', requireAuth, async (req, res) => {
+  const { user } = req;
+
+  if (!user) {
+    return res.status(200).json({
+      user: null
+    });
+  }
+
+  return res.json({
+    id: user.id,
+    email: user.email,
+    username: user.username,
+    firstName: user.firstName,
+    lastName: user.lastName,
   });
 });
 
