@@ -40,11 +40,16 @@ router.get('/', requireAuth, async (req, res) => {
   return res.status(200).json({ Bookings: bookings });
 });
 
-// Create a booking (authentication required)
 router.post('/', requireAuth, async (req, res) => {
   const { spotId } = req.params;
   const { startDate, endDate } = req.body;
 
+  // Convert to Date objects for validation
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const today = new Date();
+
+  // Validate the spot exists
   const spot = await Spot.findByPk(spotId);
   if (!spot) {
     return res.status(404).json({
@@ -57,18 +62,54 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(403).json({ message: 'Forbidden: You cannot book your own spot' });
   }
 
-  // Check for date conflicts
+  // Check if startDate is in the past
+  if (start < today) {
+    return res.status(400).json({
+      message: 'Bad Request',
+      errors: {
+        startDate: 'Start date cannot be in the past',
+      },
+    });
+  }
+
+  // Check if endDate is before startDate
+  if (end <= start) {
+    return res.status(400).json({
+      message: 'Bad Request',
+      errors: {
+        endDate: 'End date cannot be on or before start date',
+      },
+    });
+  }
+
+  // Check for date conflicts with existing bookings
   const conflictingBookings = await Booking.findAll({
     where: {
       spotId,
       [Op.or]: [
         {
           startDate: {
-            [Op.lte]: endDate,
+            [Op.between]: [startDate, endDate], // StartDate falls within an existing booking
           },
+        },
+        {
           endDate: {
-            [Op.gte]: startDate,
+            [Op.between]: [startDate, endDate], // EndDate falls within an existing booking
           },
+        },
+        {
+          [Op.and]: [
+            {
+              startDate: {
+                [Op.lte]: startDate, // Existing booking starts before or on the same day as the requested startDate
+              },
+            },
+            {
+              endDate: {
+                [Op.gte]: endDate, // Existing booking ends after or on the same day as the requested endDate
+              },
+            },
+          ],
         },
       ],
     },
@@ -94,6 +135,7 @@ router.post('/', requireAuth, async (req, res) => {
 
   return res.status(201).json(newBooking);
 });
+
 
 // Edit a booking (authentication required)
 router.put('/:bookingId', requireAuth, async (req, res) => {
