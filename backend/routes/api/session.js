@@ -65,7 +65,6 @@ router.post(
     if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
       return res.status(401).json({
         message: 'Invalid credentials',
-        errors: { credential: 'Email or username is required', password: 'Password is required' }
       });
     }
 
