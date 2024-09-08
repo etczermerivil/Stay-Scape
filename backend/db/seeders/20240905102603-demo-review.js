@@ -18,6 +18,9 @@ module.exports = {
     const spotId2 = spots[1].id;  // Second spot
 
     options.tableName = 'Reviews';
+
+    await queryInterface.bulkDelete(options, null, {});
+
     return queryInterface.bulkInsert(options, [
       {
         spotId: spotId1,

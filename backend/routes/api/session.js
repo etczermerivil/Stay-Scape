@@ -20,6 +20,30 @@ const validateLogin = [
   handleValidationErrors
 ];
 
+router.get(
+  '/',
+  restoreUser, // Middleware to restore user session if a user is logged in
+  (req, res) => {
+    const { user } = req;
+
+    if (user) {
+      const safeUser = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        username: user.username,
+      };
+
+      return res.json({
+        user: safeUser
+      });
+    } else {
+      return res.json({ user: null });
+    }
+  }
+);
+
 // Log in
 router.post(
   '/',
@@ -72,28 +96,6 @@ router.delete(
 );
 
 // Restore session user
-router.get(
-  '/',
-  restoreUser, // Middleware to restore user session if a user is logged in
-  (req, res) => {
-    const { user } = req;
 
-    if (user) {
-      const safeUser = {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        username: user.username,
-      };
-
-      return res.json({
-        user: safeUser
-      });
-    } else {
-      return res.json({ user: null });
-    }
-  }
-);
 
 module.exports = router;

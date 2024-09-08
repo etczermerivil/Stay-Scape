@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   async up(queryInterface, Sequelize) {
     // Get the user IDs dynamically from the Users table
+
     const users = await queryInterface.sequelize.query(
       `SELECT id FROM ${options.schema ? `"${options.schema}".` : ''}"Users"`,
       { type: queryInterface.sequelize.QueryTypes.SELECT }
@@ -18,6 +19,9 @@ module.exports = {
     const ownerId2 = users[1].id;  // Second user
 
     options.tableName = 'Spots';
+
+    await queryInterface.bulkDelete(options, null, {});
+
     return queryInterface.bulkInsert(options, [
       {
         ownerId: ownerId1,  // Dynamically fetched
@@ -54,7 +58,7 @@ module.exports = {
     options.tableName = 'Spots';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      ownerId: { [Op.in]: [ownerId1, ownerId2] }  // Dynamically fetched
+      ownerId: { [Op.in]: [ownerId1, ownerId2] }
     }, {});
   }
 };

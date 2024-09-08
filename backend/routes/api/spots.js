@@ -1,5 +1,5 @@
 const express = require('express');
-const { Spot, SpotImage, Review, sequelize, User } = require('../../db/models');
+const { Spot, SpotImage, Review, Booking, sequelize, User } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 const router = express.Router();
 
@@ -346,6 +346,132 @@ router.delete('/:spotId', requireAuth, async (req, res) => {
     return res.status(500).json({ message: 'Server Error', error: err.message });
   }
 });
+
+router.delete('/', async (req, res) => {
+  try {
+    // Extract query parameters
+    let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
+
+    // Validate query parameters
+    page = parseInt(page) || 1;
+    size = parseInt(size) || 20;
+
+    // Validate page
+    if (isNaN(page) || page < 1) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { page: "Page must be greater than or equal to 1" }
+      });
+    }
+
+    // Validate size
+    if (isNaN(size) || size < 1 || size > 20) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { size: "Size must be between 1 and 20" }
+      });
+    }
+
+    // Validate latitude
+    if (minLat && (isNaN(minLat) || minLat < -90 || minLat > 90)) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { minLat: "Minimum latitude is invalid" }
+      });
+    }
+    if (maxLat && (isNaN(maxLat) || maxLat < -90 || maxLat > 90)) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { maxLat: "Maximum latitude is invalid" }
+      });
+    }
+
+    // Validate longitude
+    if (minLng && (isNaN(minLng) || minLng < -180 || minLng > 180)) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { minLng: "Minimum longitude is invalid" }
+      });
+    }
+    if (maxLng && (isNaN(maxLng) || maxLng < -180 || maxLng > 180)) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { maxLng: "Maximum longitude is invalid" }
+      });
+    }
+
+    // Validate price
+    if (minPrice && (isNaN(minPrice) || minPrice < 0)) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { minPrice: "Minimum price must be greater than or equal to 0" }
+      });
+    }
+    if (maxPrice && (isNaN(maxPrice) || maxPrice < 0)) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors: { maxPrice: "Maximum price must be greater than or equal to 0" }
+      });
+    }
+
+    const where = {};
+
+    // Add latitude filters
+    if (minLat) where.lat = { [sequelize.Op.gte]: parseFloat(minLat) };
+    if (maxLat) where.lat = { ...where.lat, [sequelize.Op.lte]: parseFloat(maxLat) };
+
+    // Add longitude filters
+    if (minLng) where.lng = { [sequelize.Op.gte]: parseFloat(minLng) };
+    if (maxLng) where.lng = { ...where.lng, [sequelize.Op.lte]: parseFloat(maxLng) };
+
+    // Add price filters
+    if (minPrice && minPrice >= 0) where.price = { [sequelize.Op.gte]: parseFloat(minPrice) };
+    if (maxPrice && maxPrice >= 0) where.price = { ...where.price, [sequelize.Op.lte]: parseFloat(maxPrice) };
+
+    // Find spots to be deleted
+    const spotsToDelete = await Spot.findAll({
+      where,
+      limit: size,
+      offset: (page - 1) * size,
+    });
+
+    // If no spots found, return a message
+    if (!spotsToDelete.length) {
+      return res.status(404).json({ message: 'No spots found to delete' });
+    }
+
+    // Delete the spots and related records (if applicable)
+    await Spot.destroy({ where });
+
+    return res.status(200).json({
+      message: 'Spots successfully deleted',
+      Spots: spotsToDelete.map(spot => ({
+        id: spot.id,
+        ownerId: spot.ownerId,
+        address: spot.address,
+        city: spot.city,
+        state: spot.state,
+        country: spot.country,
+        lat: spot.lat,
+        lng: spot.lng,
+        name: spot.name,
+        description: spot.description,
+        price: spot.price,
+        createdAt: spot.createdAt,
+        updatedAt: spot.updatedAt,
+      })),
+      page,
+      size
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Server Error',
+      error: err.message,
+    });
+  }
+});
+
 
 
 

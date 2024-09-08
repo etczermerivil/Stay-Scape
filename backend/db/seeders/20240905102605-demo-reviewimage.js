@@ -18,6 +18,9 @@ module.exports = {
     const reviewId2 = reviews[1].id;
 
     options.tableName = 'ReviewImages';
+
+    await queryInterface.bulkDelete(options, null, {});
+
     return queryInterface.bulkInsert(options, [
       {
         reviewId: reviewId1,  // Dynamically fetched

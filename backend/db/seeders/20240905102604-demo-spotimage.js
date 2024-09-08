@@ -18,6 +18,9 @@ module.exports = {
     const spotId2 = spots[1].id;
 
     options.tableName = 'SpotImages';
+
+    await queryInterface.bulkDelete(options, null, {});
+
     return queryInterface.bulkInsert(options, [
       {
         spotId: spotId1,  // Dynamically fetched

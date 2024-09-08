@@ -19,6 +19,8 @@ module.exports = {
 
     // Insert bookings with the dynamically fetched spotId values
     options.tableName = 'Bookings';
+    await queryInterface.bulkDelete(options, null, {});
+
     return queryInterface.bulkInsert(options, [
       {
         spotId: spotId1,
