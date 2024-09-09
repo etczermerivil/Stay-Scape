@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
           [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
         ]
       },
-      group: ['Spot.id'],
+      group: ['Spot.id', 'Owner.id'],
     });
 
     const spotsList = spots.map(spot => ({
@@ -82,7 +82,7 @@ router.get('/current', requireAuth, async (req, res) => {
           [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
         ]
       },
-      group: ['Spot.id'],
+      group: ['Spot.id', 'Owner.id'],
     });
 
     const spotsList = spots.map(spot => ({
