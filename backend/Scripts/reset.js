@@ -1,6 +1,6 @@
 const { sequelize } = require('../db/models');
 const { exec } = require('child_process');
-const sqlite3 = require('sqlite3').verbose(); // Add SQLite3
+const sqlite3 = require('sqlite3').verbose(); // Add SQLite3 for development
 
 const runCommand = (command) => {
   return new Promise((resolve, reject) => {
@@ -16,67 +16,111 @@ const runCommand = (command) => {
   });
 };
 
-const dropAllTables = async () => {
+const dropAllTablesDevelopment = async () => {
   try {
-    console.log('Dropping all tables...');
-    await sequelize.query('PRAGMA foreign_keys = OFF;');
-    await sequelize.query('DROP TABLE IF EXISTS `Bookings`;');
-    await sequelize.query('DROP TABLE IF EXISTS `Reviews`;');
-    await sequelize.query('DROP TABLE IF EXISTS `ReviewImages`;');
-    await sequelize.query('DROP TABLE IF EXISTS `Spots`;');
-    await sequelize.query('DROP TABLE IF EXISTS `SpotImages`;');
-    await sequelize.query('DROP TABLE IF EXISTS `Users`;');
-    await sequelize.query('DROP TABLE IF EXISTS `SequelizeMeta`;');
-    await sequelize.query('DROP TABLE IF EXISTS `SequelizeData`;');
-    await sequelize.query('PRAGMA foreign_keys = ON;');
-    console.log('All tables dropped successfully.');
+    console.log('Dropping all tables (SQLite - Development)...');
+    const db = new sqlite3.Database('db/dev.db'); // Adjust path to your SQLite file
+    db.serialize(() => {
+      db.run('PRAGMA foreign_keys = OFF;');
+      db.run('DROP TABLE IF EXISTS `Bookings`;');
+      db.run('DROP TABLE IF EXISTS `Reviews`;');
+      db.run('DROP TABLE IF EXISTS `ReviewImages`;');
+      db.run('DROP TABLE IF EXISTS `Spots`;');
+      db.run('DROP TABLE IF EXISTS `SpotImages`;');
+      db.run('DROP TABLE IF EXISTS `Users`;');
+      db.run('DROP TABLE IF EXISTS `SequelizeMeta`;');
+      db.run('DROP TABLE IF EXISTS `SequelizeData`;');
+      db.run('PRAGMA foreign_keys = ON;');
+    });
+    db.close();
+    console.log('All tables dropped successfully in development.');
   } catch (error) {
-    console.error('Error dropping tables:', error);
+    console.error('Error dropping tables in development:', error);
   }
 };
 
-const clearSequelizeDataUsingSQLite3 = async () => {
+const clearSequelizeDataTableDevelopment = async () => {
   try {
-    const db = new sqlite3.Database('db/dev.db'); // Adjust path to your SQLite file
+    const db = new sqlite3.Database('db/dev.db');
 
-    db.serialize(() => {
-      db.run('DELETE FROM SequelizeData', function (err) {
+    db.get(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeData';",
+      (err, row) => {
         if (err) {
-          console.error('Error clearing SequelizeData:', err);
+          console.error('Error checking for SequelizeData table:', err);
+        } else if (row) {
+          // If the table exists, delete all rows
+          db.run('DELETE FROM SequelizeData;', (deleteErr) => {
+            if (deleteErr) {
+              console.error('Error deleting from SequelizeData:', deleteErr);
+            } else {
+              console.log('Successfully cleared SequelizeData in development.');
+            }
+          });
         } else {
-          console.log('Successfully cleared SequelizeData');
+          console.log('SequelizeData table does not exist. Skipping...');
         }
-      });
-    });
+      }
+    );
 
     db.close();
   } catch (error) {
-    console.error('Error accessing SQLite database:', error);
+    console.error('Error accessing SQLite database in development:', error);
+  }
+};
+
+const dropAllTables = async () => {
+  const env = process.env.NODE_ENV;
+
+  if (env === 'production') {
+    try {
+      console.log('Dropping all tables (PostgreSQL - Production)...');
+      await sequelize.query('DROP TABLE IF EXISTS "Bookings" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "Reviews" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "ReviewImages" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "Spots" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "SpotImages" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "Users" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "SequelizeMeta" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "SequelizeData" CASCADE;');
+      console.log('All tables dropped successfully in production.');
+    } catch (error) {
+      console.error('Error dropping tables in production:', error);
+    }
+  } else {
+    await dropAllTablesDevelopment(); // Use sqlite3 for development
   }
 };
 
 const resetDatabase = async () => {
+  const env = process.env.NODE_ENV || 'development'; // Default to development if NODE_ENV is undefined
+
   try {
     // Drop all tables manually
     await dropAllTables();
 
     // Undo all migrations to force a reset
-    console.log('Undoing all migrations...');
-    await runCommand('npx dotenv sequelize-cli db:migrate:undo:all');
+    console.log(`Undoing all migrations (${env})...`);
+    await runCommand(`npx dotenv sequelize-cli db:migrate:undo:all --env ${env}`);
 
     // Run migrations again to recreate all tables
-    console.log('Running migrations...');
-    await runCommand('npx dotenv sequelize-cli db:migrate');
+    console.log(`Running migrations (${env})...`);
+    await runCommand(`npx dotenv sequelize-cli db:migrate --env ${env}`);
 
-    // Use sqlite3 to manually clear SequelizeData
-    console.log('Manually clearing SequelizeData table using sqlite3...');
-    await clearSequelizeDataUsingSQLite3();
+    // Clear the SequelizeData table if it exists
+    if (env === 'production') {
+      console.log('Clearing SequelizeData table (PostgreSQL - Production)...');
+      await sequelize.query('DELETE FROM "SequelizeData";');
+    } else {
+      console.log('Checking and clearing SequelizeData table (SQLite - Development)...');
+      await clearSequelizeDataTableDevelopment(); // Check and delete in SQLite
+    }
 
     // Run seeders
-    console.log('Running seeders...');
-    await runCommand('npx dotenv sequelize-cli db:seed:all');
+    console.log(`Running seeders (${env})...`);
+    await runCommand(`npx dotenv sequelize-cli db:seed:all --env ${env}`);
 
-    console.log('Database reset complete.');
+    console.log(`Database reset complete (${env}).`);
   } catch (error) {
     console.error('Error resetting the database:', error);
   } finally {
