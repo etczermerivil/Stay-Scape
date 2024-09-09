@@ -1,6 +1,6 @@
 const express = require('express');
 const { Spot, SpotImage, Review, Booking, sequelize, User } = require('../../db/models');
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, requireProperAuthorization } = require('../../utils/auth');
 const router = express.Router();
 
 const bookingsRouter = require('./bookings');
@@ -315,26 +315,27 @@ router.put('/:spotId', requireAuth, async (req, res) => {
 router.delete('/:spotId', requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
-  // Find the spot
-  const spot = await Spot.findByPk(spotId);
-
-  if (!spot) {
-    return res.status(404).json({ message: "Spot couldn't be found" });
-  }
-
-  // Check if the current user owns the spot
-  if (spot.ownerId !== req.user.id) {
-    return res.status(403).json({ message: 'Forbidden: You do not own this spot' });
-  }
-
   try {
-    // Delete all related SpotImages
+    // Find the spot by ID
+    const spot = await Spot.findByPk(spotId);
+    if (!spot) {
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+
+    // Ensure the current user owns the spot
+    if (spot.ownerId !== req.user.id) {
+      // If the spot doesn't belong to the user, we don't need to explicitly return a 403,
+      // but we also shouldn't delete the spot. We simply return 404 as if it doesn't exist.
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+
+    // Delete related SpotImages
     await SpotImage.destroy({ where: { spotId } });
 
-    // Delete all related Reviews
+    // Delete related Reviews
     await Review.destroy({ where: { spotId } });
 
-    // Delete all related Bookings
+    // Delete related Bookings
     await Booking.destroy({ where: { spotId } });
 
     // Now, delete the spot itself
@@ -342,7 +343,6 @@ router.delete('/:spotId', requireAuth, async (req, res) => {
 
     return res.status(200).json({ message: 'Successfully deleted' });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ message: 'Server Error', error: err.message });
   }
 });

@@ -1,6 +1,6 @@
 const express = require('express');
 const { SpotImage, Spot } = require('../../db/models');
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, requireProperAuthorization} = require('../../utils/auth');
 const router = express.Router();
 
 // POST add an image to a spot by spotId (authentication and authorization required)
@@ -39,22 +39,29 @@ router.post('/:spotId/images', requireAuth, async (req, res) => {
 router.delete('/:imageId', requireAuth, async (req, res) => {
   const { imageId } = req.params;
 
-  // Find the image by id
-  const spotImage = await SpotImage.findByPk(imageId);
-  if (!spotImage) {
-    return res.status(404).json({
-      message: "Spot Image couldn't be found",
-    });
-  }
+  try {
+    // Find the image by ID
+    const spotImage = await SpotImage.findByPk(imageId);
+    if (!spotImage) {
+      return res.status(404).json({
+        message: "Spot Image couldn't be found",
+      });
+    }
 
-  // Ensure the current user owns the spot that this image belongs to
-  const spot = await Spot.findByPk(spotImage.spotId);
-  if (spot.ownerId !== req.user.id) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
+    // Find the spot to which this image belongs
+    const spot = await Spot.findByPk(spotImage.spotId);
+    if (!spot || spot.ownerId !== req.user.id) {
+      return res.status(404).json({
+        message: "Spot couldn't be found",
+      });
+    }
 
-  await spotImage.destroy();
-  return res.json({ message: 'Successfully deleted' });
+    // Proceed with deleting the image
+    await spotImage.destroy();
+    return res.status(200).json({ message: 'Successfully deleted' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server Error', error: err.message });
+  }
 });
 
 module.exports = router;
