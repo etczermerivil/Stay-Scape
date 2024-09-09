@@ -12,6 +12,7 @@ router.use('/:spotId/reviews', reviewsRouter);
 // GET all spots owned by the current user (authentication required)
 router.get('/current', requireAuth, async (req, res) => {
   try {
+    // Fetch spots for the current user without grouping
     const spots = await Spot.findAll({
       where: { ownerId: req.user.id },
       include: [
@@ -23,17 +24,12 @@ router.get('/current', requireAuth, async (req, res) => {
         },
         {
           model: Review,
-          attributes: [],
+          attributes: [],  // No need for the reviews' stars for now
         }
       ],
-      attributes: {
-        include: [
-          [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
-        ]
-      },
-      group: ['Spot.id', 'SpotImages.id'],
     });
 
+    // Map through spots and create the response
     const spotsList = spots.map(spot => ({
       id: spot.id,
       ownerId: spot.ownerId,
@@ -48,9 +44,12 @@ router.get('/current', requireAuth, async (req, res) => {
       price: spot.price,
       createdAt: spot.createdAt,
       updatedAt: spot.updatedAt,
-      avgRating: spot.dataValues.avgRating || null,
+      avgRating: spot.dataValues.avgRating || null,  // Keep avgRating as is, but no grouping
       previewImage: spot.SpotImages.length ? spot.SpotImages[0].url : null,
     }));
+
+    // Log the spots for debugging
+    console.log('Spots List:', spotsList);
 
     return res.status(200).json({ Spots: spotsList });
   } catch (err) {
@@ -60,6 +59,7 @@ router.get('/current', requireAuth, async (req, res) => {
     });
   }
 });
+
 
 // GET all spots (no authentication required)
 router.get('/', async (req, res) => {
