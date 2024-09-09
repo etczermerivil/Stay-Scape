@@ -44,34 +44,27 @@ const dropAllTablesDevelopment = async () => {
   }
 };
 
-const clearSequelizeDataTableDevelopment = async () => {
+const clearSequelizeDataTableProduction = async () => {
   try {
-    const db = new sqlite3.Database('db/dev.db');
+    console.log('Checking and clearing SequelizeData table (PostgreSQL - Production)...');
 
-    // Check if SequelizeData table exists before deleting
-    db.get(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeData';",
-      (err, row) => {
-        if (err) {
-          console.error('Error checking for SequelizeData table:', err);
-        } else if (row) {
-          // If the table exists, delete all rows
-          db.run('DELETE FROM SequelizeData;', (deleteErr) => {
-            if (deleteErr) {
-              console.error('Error deleting from SequelizeData:', deleteErr);
-            } else {
-              console.log('Successfully cleared SequelizeData in development.');
-            }
-          });
-        } else {
-          console.log('SequelizeData table does not exist. Skipping...');
-        }
-      }
-    );
+    const result = await sequelize.query(`
+      SELECT EXISTS (
+        SELECT FROM pg_tables
+        WHERE schemaname = 'airbnb_schema' AND tablename = 'SequelizeData'
+      );
+    `);
 
-    db.close();
+    const exists = result[0][0].exists;
+    if (exists) {
+      console.log('Clearing SequelizeData table in production...');
+      await sequelize.query('DELETE FROM "airbnb_schema"."SequelizeData";');
+      console.log('Successfully cleared SequelizeData in production.');
+    } else {
+      console.log('SequelizeData table does not exist in production. Skipping...');
+    }
   } catch (error) {
-    console.error('Error accessing SQLite database in development:', error);
+    console.error('Error clearing SequelizeData in production:', error);
   }
 };
 
@@ -81,14 +74,14 @@ const dropAllTables = async () => {
   if (env === 'production') {
     try {
       console.log('Dropping all tables (PostgreSQL - Production)...');
-      await sequelize.query('DROP TABLE IF EXISTS "Bookings" CASCADE;');
-      await sequelize.query('DROP TABLE IF EXISTS "Reviews" CASCADE;');
-      await sequelize.query('DROP TABLE IF EXISTS "ReviewImages" CASCADE;');
-      await sequelize.query('DROP TABLE IF EXISTS "Spots" CASCADE;');
-      await sequelize.query('DROP TABLE IF EXISTS "SpotImages" CASCADE;');
-      await sequelize.query('DROP TABLE IF EXISTS "Users" CASCADE;');
-      await sequelize.query('DROP TABLE IF EXISTS "SequelizeMeta" CASCADE;');
-      await sequelize.query('DROP TABLE IF EXISTS "SequelizeData" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."Bookings" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."Reviews" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."ReviewImages" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."Spots" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."SpotImages" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."Users" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."SequelizeMeta" CASCADE;');
+      await sequelize.query('DROP TABLE IF EXISTS "airbnb_schema"."SequelizeData" CASCADE;');
       console.log('All tables dropped successfully in production.');
     } catch (error) {
       console.error('Error dropping tables in production:', error);
@@ -116,11 +109,7 @@ const resetDatabase = async () => {
 
     // Clear the SequelizeData table if it exists
     if (env === 'production') {
-      console.log('Clearing SequelizeData table (PostgreSQL - Production)...');
-      await sequelize.query('DELETE FROM "SequelizeData";');
-    } else {
-      console.log('Checking and clearing SequelizeData table (SQLite - Development)...');
-      await clearSequelizeDataTableDevelopment(); // Check and delete in SQLite
+      await clearSequelizeDataTableProduction();
     }
 
     // Run seeders
