@@ -107,11 +107,12 @@ const resetDatabase = async () => {
 
     // Undo all migrations to force a reset
     console.log(`Undoing all migrations (${env})...`);
-    await runCommand(`npx dotenv sequelize-cli db:migrate:undo:all --env ${env}`);
+    const commandPrefix = env === 'production' ? 'npx sequelize-cli' : 'npx dotenv sequelize-cli';
+    await runCommand(`${commandPrefix} db:migrate:undo:all --env ${env}`);
 
     // Run migrations again to recreate all tables
     console.log(`Running migrations (${env})...`);
-    await runCommand(`npx dotenv sequelize-cli db:migrate --env ${env}`);
+    await runCommand(`${commandPrefix} db:migrate --env ${env}`);
 
     // Clear the SequelizeData table if it exists
     if (env === 'production') {
@@ -124,7 +125,7 @@ const resetDatabase = async () => {
 
     // Run seeders
     console.log(`Running seeders (${env})...`);
-    await runCommand(`npx dotenv sequelize-cli db:seed:all --env ${env}`);
+    await runCommand(`${commandPrefix} db:seed:all --env ${env}`);
 
     console.log(`Database reset complete (${env}).`);
   } catch (error) {
