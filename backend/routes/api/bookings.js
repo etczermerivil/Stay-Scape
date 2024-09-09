@@ -39,7 +39,7 @@ router.get('/', requireAuth, async (req, res) => {
   return res.status(200).json({ Bookings: bookings });
 });
 
-router.post('/', requireAuth, requireProperAuthorization, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   const { spotId } = req.params;
   const { startDate, endDate } = req.body;
 
