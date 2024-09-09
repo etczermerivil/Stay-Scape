@@ -113,6 +113,20 @@ router.post('/', requireAuth, async (req, res) => {
     });
   }
 
+  // Check if the user already has a review for this spot
+  const existingReview = await Review.findOne({
+    where: {
+      userId: req.user.id,
+      spotId
+    }
+  });
+
+  if (existingReview) {
+    return res.status(500).json({
+      message: "User already has a review for this spot"
+    });
+  }
+
   // Validate input
   if (!review || !stars || stars < 1 || stars > 5) {
     return res.status(400).json({
@@ -134,6 +148,7 @@ router.post('/', requireAuth, async (req, res) => {
 
   return res.status(201).json(newReview);
 });
+
 
 // Delete a review (authentication required)
 router.delete('/:reviewId', requireAuth, async (req, res) => {

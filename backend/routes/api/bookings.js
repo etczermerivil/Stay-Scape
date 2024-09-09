@@ -1,10 +1,9 @@
 const express = require('express');
 const router = require('express').Router({ mergeParams: true }); // Allows access to :spotId
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, requireProperAuthorization } = require('../../utils/auth');
 const { Booking, Spot, User } = require('../../db/models');
 const { Op } = require('sequelize'); // Import Op for Sequelize operations
 
-// Get all bookings of the current user (authentication required)
 // Get all bookings for the current user
 router.get('/current', requireAuth, async (req, res) => {
   const bookings = await Booking.findAll({
@@ -40,7 +39,7 @@ router.get('/', requireAuth, async (req, res) => {
   return res.status(200).json({ Bookings: bookings });
 });
 
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, requireProperAuthorization, async (req, res) => {
   const { spotId } = req.params;
   const { startDate, endDate } = req.body;
 
@@ -72,7 +71,7 @@ router.post('/', requireAuth, async (req, res) => {
     });
   }
 
-  // Check if endDate is before startDate
+  // Check if endDate is before or equal to startDate
   if (end <= start) {
     return res.status(400).json({
       message: 'Bad Request',
@@ -136,7 +135,6 @@ router.post('/', requireAuth, async (req, res) => {
   return res.status(201).json(newBooking);
 });
 
-
 // Edit a booking (authentication required)
 router.put('/:bookingId', requireAuth, async (req, res) => {
   const { bookingId } = req.params;
@@ -158,11 +156,35 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
     return res.status(403).json({ message: "Past bookings can't be modified" });
   }
 
-  // Check for date conflicts
+  // Convert to Date objects for validation
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Check if startDate is in the past
+  if (start < currentDate) {
+    return res.status(400).json({
+      message: 'Bad Request',
+      errors: {
+        startDate: 'Start date cannot be in the past',
+      },
+    });
+  }
+
+  // Check if endDate is before or equal to startDate
+  if (end <= start) {
+    return res.status(400).json({
+      message: 'Bad Request',
+      errors: {
+        endDate: 'End date cannot be on or before start date',
+      },
+    });
+  }
+
+  // Check for date conflicts with other bookings
   const conflictingBookings = await Booking.findAll({
     where: {
       spotId: booking.spotId,
-      id: { [Op.ne]: booking.id }, // Ensure the conflict check excludes the current booking
+      id: { [Op.ne]: booking.id }, // Exclude the current booking from the conflict check
       [Op.or]: [
         {
           startDate: {
@@ -186,9 +208,11 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
     });
   }
 
+  // Update the booking with the new dates
   await booking.update({ startDate, endDate });
   return res.json(booking);
 });
+
 
 // Delete a booking (authentication required)
 router.delete('/:bookingId', requireAuth, async (req, res) => {
