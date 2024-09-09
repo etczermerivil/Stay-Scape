@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
           [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
         ]
       },
-      group: ['Spot.id', 'SpotImages.id'],
+      group: ['Spot.id'],
     });
 
     const spotsList = spots.map(spot => ({
@@ -82,7 +82,7 @@ router.get('/current', requireAuth, async (req, res) => {
           [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
         ]
       },
-      group: ['Spot.id', 'SpotImages.id'],
+      group: ['Spot.id'],
     });
 
     const spotsList = spots.map(spot => ({
@@ -131,7 +131,7 @@ router.get('/:spotId', async (req, res) => {
       },
       {
         model: Review,
-        attributes: ['stars'],
+        attributes: [],  // Exclude details but allow aggregation
       },
       {
         model: User,
@@ -139,19 +139,18 @@ router.get('/:spotId', async (req, res) => {
         attributes: ['id', 'firstName', 'lastName']
       }
     ],
+    attributes: {
+      include: [
+        [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgStarRating'],
+        [sequelize.fn('COUNT', sequelize.col('Reviews.id')), 'numReviews']
+      ]
+    },
+    group: ['Spot.id', 'SpotImages.id', 'Owner.id'],  // Grouping by Spot and Owner
   });
 
   if (!spot) {
     return res.status(404).json({ message: "Spot couldn't be found" });
   }
-
-  const avgRating = await Review.findOne({
-    where: { spotId: spot.id },
-    attributes: [[sequelize.fn('AVG', sequelize.col('stars')), 'avgStarRating']],
-    raw: true,
-  });
-
-  const numReviews = await Review.count({ where: { spotId: spot.id } });
 
   return res.status(200).json({
     id: spot.id,
@@ -167,14 +166,66 @@ router.get('/:spotId', async (req, res) => {
     price: spot.price,
     createdAt: spot.createdAt,
     updatedAt: spot.updatedAt,
-    numReviews,
-    avgStarRating: avgRating.avgStarRating || null,
+    numReviews: spot.dataValues.numReviews || 0,
+    avgStarRating: spot.dataValues.avgStarRating || null,
     SpotImages: spot.SpotImages,
     Owner: {
       id: spot.Owner.id,
       firstName: spot.Owner.firstName,
       lastName: spot.Owner.lastName
     }
+  });
+});
+
+
+// POST create a spot (authentication required)
+router.post('/', requireAuth, async (req, res) => {
+  const { address, city, state, country, lat, lng, name, description, price } = req.body;
+
+  if (!address || !city || !state || !country || !lat || !lng || !name || !description || !price) {
+    return res.status(400).json({
+      message: 'Validation Error',
+      errors: {
+        address: 'Street address is required',
+        city: 'City is required',
+        state: 'State is required',
+        country: 'Country is required',
+        lat: 'Latitude must be within -90 and 90',
+        lng: 'Longitude must be within -180 and 180',
+        name: 'Name must be less than 50 characters',
+        description: 'Description is required',
+        price: 'Price per day must be a positive number',
+      }
+    });
+  }
+
+  const newSpot = await Spot.create({
+    ownerId: req.user.id,
+    address,
+    city,
+    state,
+    country,
+    lat,
+    lng,
+    name,
+    description,
+    price
+  });
+
+  return res.status(201).json({
+    id: newSpot.id,
+    ownerId: newSpot.ownerId,
+    address: newSpot.address,
+    city: newSpot.city,
+    state: newSpot.state,
+    country: newSpot.country,
+    lat: newSpot.lat,
+    lng: newSpot.lng,
+    name: newSpot.name,
+    description: newSpot.description,
+    price: newSpot.price,
+    createdAt: newSpot.createdAt,
+    updatedAt: newSpot.updatedAt
   });
 });
 
