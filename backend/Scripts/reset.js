@@ -1,6 +1,11 @@
 const { sequelize } = require('../db/models');
 const { exec } = require('child_process');
-const sqlite3 = require('sqlite3').verbose(); // Add SQLite3 for development
+
+// Conditionally require sqlite3 for development environment
+let sqlite3;
+if (process.env.NODE_ENV !== 'production') {
+  sqlite3 = require('sqlite3').verbose();
+}
 
 const runCommand = (command) => {
   return new Promise((resolve, reject) => {
@@ -43,6 +48,7 @@ const clearSequelizeDataTableDevelopment = async () => {
   try {
     const db = new sqlite3.Database('db/dev.db');
 
+    // Check if SequelizeData table exists before deleting
     db.get(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeData';",
       (err, row) => {
