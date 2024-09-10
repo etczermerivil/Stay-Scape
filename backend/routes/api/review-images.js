@@ -43,11 +43,11 @@ router.post('/', requireAuth, async (req, res) => {
 });
 
 // DELETE a review image by ID (either reviewImageId or imageId)
-router.delete('/:id', requireAuth, async (req, res) => {
-  const { id } = req.params;
+router.delete('/:imageId', requireAuth, async (req, res) => {
+  const { imageId } = req.params;
 
   // Find the review image by ID
-  const reviewImage = await ReviewImage.findByPk(id);
+  const reviewImage = await ReviewImage.findByPk(imageId);
   if (!reviewImage) {
     return res.status(404).json({
       message: "Review Image couldn't be found",
@@ -70,6 +70,5 @@ router.delete('/:id', requireAuth, async (req, res) => {
     message: 'Successfully deleted',
   });
 });
-
 
 module.exports = router;

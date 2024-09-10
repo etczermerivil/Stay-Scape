@@ -4,40 +4,70 @@ const { requireAuth, requireProperAuthorization } = require('../../utils/auth');
 const { Booking, Spot, User } = require('../../db/models');
 const { Op } = require('sequelize'); // Import Op for Sequelize operations
 
-// Get all bookings for the current user
+
 router.get('/current', requireAuth, async (req, res) => {
   const bookings = await Booking.findAll({
-    where: { userId: req.user.id },  // Fetch bookings by userId
+    where: { userId: req.user.id }, // Fetch bookings by the current user
+    include: [
+      {
+        model: Spot,
+        attributes: [
+          'id', 'ownerId', 'address', 'city', 'state', 'country',
+          'lat', 'lng', 'name', 'price', // Include necessary spot details
+          [sequelize.literal('(SELECT url FROM "SpotImages" WHERE "SpotImages"."spotId" = "Spot"."id" AND "SpotImages"."preview" = true LIMIT 1)'), 'previewImage'] // Preview image dynamically
+        ]
+      }
+    ],
+    attributes: [
+      'id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt' // Include booking details
+    ]
   });
-  res.json({ Bookings: bookings });
+
+  return res.status(200).json({ Bookings: bookings });
 });
 
-// Get all bookings for a specific spot
+
+
+
 router.get('/', requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
   // Check if the spot exists
   const spot = await Spot.findByPk(spotId);
+
   if (!spot) {
-    console.log('Spot not found for spotId:', spotId);
     return res.status(404).json({
       message: "Spot couldn't be found",
     });
   }
 
-  console.log('Spot found:', spot);
+  // If the current user is the owner of the spot
+  if (spot.ownerId === req.user.id) {
+    const bookings = await Booking.findAll({
+      where: { spotId },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName'] // Include user details
+        }
+      ],
+      attributes: ['id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt']
+    });
 
-  // Fetch bookings by spotId
+    return res.status(200).json({ Bookings: bookings });
+  }
+
+  // If the current user is not the owner of the spot
   const bookings = await Booking.findAll({
-    where: { spotId },  // Fetch by spotId
-    attributes: ['spotId', 'startDate', 'endDate']
+    where: { spotId },
+    attributes: ['spotId', 'startDate', 'endDate'] // Limited fields for non-owner
   });
 
-  console.log('Bookings found for spotId:', spotId, bookings);
-
-  // Return the bookings
   return res.status(200).json({ Bookings: bookings });
 });
+
+
+
 
 router.post('/', requireAuth, async (req, res) => {
   const { spotId } = req.params;
@@ -135,32 +165,41 @@ router.post('/', requireAuth, async (req, res) => {
   return res.status(201).json(newBooking);
 });
 
-// Edit a booking (authentication required)
+
+
+
 router.put('/:bookingId', requireAuth, async (req, res) => {
   const { bookingId } = req.params;
   const { startDate, endDate } = req.body;
 
+  // Find the booking by its ID
   const booking = await Booking.findByPk(bookingId);
   if (!booking) {
-    return res.status(404).json({ message: "Booking couldn't be found" });
+    return res.status(404).json({
+      message: "Booking couldn't be found",
+    });
   }
 
   // Ensure the booking belongs to the current user
   if (booking.userId !== req.user.id) {
-    return res.status(403).json({ message: 'Forbidden: You can only edit your own bookings' });
+    return res.status(403).json({
+      message: 'Forbidden: You can only edit your own bookings',
+    });
   }
 
   // Ensure the booking is not in the past
   const currentDate = new Date();
   if (new Date(booking.endDate) < currentDate) {
-    return res.status(403).json({ message: "Past bookings can't be modified" });
+    return res.status(403).json({
+      message: "Past bookings can't be modified",
+    });
   }
 
-  // Convert to Date objects for validation
+  // Convert input dates to Date objects for validation
   const start = new Date(startDate);
   const end = new Date(endDate);
 
-  // Check if startDate is in the past
+  // Validate the start date is not in the past
   if (start < currentDate) {
     return res.status(400).json({
       message: 'Bad Request',
@@ -170,7 +209,7 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
     });
   }
 
-  // Check if endDate is before or equal to startDate
+  // Validate the end date is not before or on the start date
   if (end <= start) {
     return res.status(400).json({
       message: 'Bad Request',
@@ -210,8 +249,20 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
 
   // Update the booking with the new dates
   await booking.update({ startDate, endDate });
-  return res.json(booking);
+
+  // Return the updated booking with createdAt and updatedAt
+  return res.status(200).json({
+    id: booking.id,
+    spotId: booking.spotId,
+    userId: booking.userId,
+    startDate: booking.startDate,
+    endDate: booking.endDate,
+    createdAt: booking.createdAt,
+    updatedAt: booking.updatedAt
+  });
 });
+
+
 
 
 // Delete a booking (authentication required)

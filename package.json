@@ -23,7 +23,9 @@
   },
   "homepage": "https://github.com/etczermerivil/Rgb-bnb#readme",
   "dependencies": {
-    "sequelize": "^6.37.3",
+    "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
     "sequelize-cli": "^6.6.2"
   }
 }
