@@ -37,9 +37,6 @@ Booking.belongsTo(models.User, { foreignKey: 'userId'});
     {
       sequelize,
       modelName: 'Booking',
-      defaultScope: {
-        attributes: { exclude: ['createdAt', 'updatedAt'] }
-      },
     }
   );
 

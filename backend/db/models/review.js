@@ -42,9 +42,6 @@ Review.hasMany(models.ReviewImage, { foreignKey: 'reviewId', onDelete: 'CASCADE'
     {
       sequelize,
       modelName: 'Review',
-      defaultScope: {
-        attributes: { exclude: ['createdAt', 'updatedAt'] }
-      },
     }
   );
 

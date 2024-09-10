@@ -1,7 +1,7 @@
 const express = require('express');
 const router = require('express').Router({ mergeParams: true }); // Allows access to :spotId
 const { requireAuth, requireProperAuthorization } = require('../../utils/auth');
-const { Booking, Spot, User } = require('../../db/models');
+const { Booking, Spot, User, sequelize } = require('../../db/models');
 const { Op } = require('sequelize'); // Import Op for Sequelize operations
 
 
@@ -118,28 +118,32 @@ router.post('/', requireAuth, async (req, res) => {
       [Op.or]: [
         {
           startDate: {
-            [Op.between]: [startDate, endDate], // StartDate falls within an existing booking
+            [Op.between]: [start, end], // Normalized startDate conflicts with existing range
           },
         },
         {
           endDate: {
-            [Op.between]: [startDate, endDate], // EndDate falls within an existing booking
+            [Op.between]: [start, end], // Normalized endDate conflicts with existing range
           },
         },
         {
           [Op.and]: [
             {
               startDate: {
-                [Op.lte]: startDate, // Existing booking starts before or on the same day as the requested startDate
+                [Op.lte]: start, // Normalized startDate comparison
               },
-            },
-            {
               endDate: {
-                [Op.gte]: endDate, // Existing booking ends after or on the same day as the requested endDate
+                [Op.gte]: end, // Normalized endDate comparison
               },
             },
           ],
         },
+        {
+          startDate: { [Op.eq]: end }, // Prevent new booking's startDate being the same as an existing booking's endDate
+        },
+        {
+          endDate: { [Op.eq]: start }, // Prevent new booking's endDate being the same as an existing booking's startDate
+        }
       ],
     },
   });
@@ -164,6 +168,7 @@ router.post('/', requireAuth, async (req, res) => {
 
   return res.status(201).json(newBooking);
 });
+
 
 
 
@@ -219,7 +224,7 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
     });
   }
 
-  // Check for date conflicts with other bookings
+  // Check for date conflicts with other bookings, excluding the current booking
   const conflictingBookings = await Booking.findAll({
     where: {
       spotId: booking.spotId,
@@ -227,12 +232,32 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
       [Op.or]: [
         {
           startDate: {
-            [Op.lte]: endDate,
-          },
-          endDate: {
-            [Op.gte]: startDate,
+            [Op.between]: [start, end], // Normalized startDate conflicts with existing range
           },
         },
+        {
+          endDate: {
+            [Op.between]: [start, end], // Normalized endDate conflicts with existing range
+          },
+        },
+        {
+          [Op.and]: [
+            {
+              startDate: {
+                [Op.lte]: start, // Normalized startDate comparison
+              },
+              endDate: {
+                [Op.gte]: end, // Normalized endDate comparison
+              },
+            },
+          ],
+        },
+        {
+          startDate: { [Op.eq]: end }, // Prevent new booking's startDate being the same as an existing booking's endDate
+        },
+        {
+          endDate: { [Op.eq]: start }, // Prevent new booking's endDate being the same as an existing booking's startDate
+        }
       ],
     },
   });
@@ -261,6 +286,7 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
     updatedAt: booking.updatedAt
   });
 });
+
 
 
 

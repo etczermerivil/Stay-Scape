@@ -273,7 +273,7 @@ router.get('/', async (req, res) => {
         price: spot.price,
         createdAt: spot.createdAt,   // Include createdAt
         updatedAt: spot.updatedAt,   // Include updatedAt
-        avgRating: avgRating ? avgRating.avgRating : null, // Include avgRating from Review table
+        avgRating: avgRating ? parseFloat(avgRating.avgRating).toFixed(1) : null, // Round avgRating to 1 decimal place
         previewImage: spot.SpotImages.length ? spot.SpotImages[0].url : null,
       };
     }));
@@ -504,10 +504,6 @@ router.put('/:spotId', requireAuth, async (req, res) => {
   });
 });
 
-
-
-
-
 // DELETE a spot (authentication and authorization required)
 router.delete('/:spotId', requireAuth, async (req, res) => {
   const { spotId } = req.params;
@@ -521,8 +517,8 @@ router.delete('/:spotId', requireAuth, async (req, res) => {
 
     // Ensure the current user owns the spot
     if (spot.ownerId !== req.user.id) {
-      // If the spot doesn't belong to the user, return 404 to avoid exposing authorization logic
-      return res.status(404).json({ message: "Spot couldn't be found" });
+      // If the spot doesn't belong to the user, return 403 Forbidden
+      return res.status(403).json({ message: "Forbidden" });
     }
 
     // Delete related SpotImages
@@ -546,5 +542,6 @@ router.delete('/:spotId', requireAuth, async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;
