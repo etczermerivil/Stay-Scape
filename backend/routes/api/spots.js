@@ -163,8 +163,6 @@ router.get('/:spotId', async (req, res) => {
 
 
 
-
-// GET all spots (no authentication required)
 router.get('/', async (req, res) => {
   try {
     let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
@@ -225,67 +223,72 @@ router.get('/', async (req, res) => {
     // Fetch spots with the applied filters and pagination
     const spots = await Spot.findAll({
       where,
+      attributes: [
+        'id',
+        'ownerId',
+        'address',
+        'city',
+        'state',
+        'country',
+        'lat',
+        'lng',
+        'name',
+        'description',
+        'price',
+        'createdAt',  // Explicitly include createdAt
+        'updatedAt'   // Explicitly include updatedAt
+      ],
       include: [
         {
           model: SpotImage,
           attributes: ['url', 'preview'],
           where: { preview: true },
           required: false,
-        },
-        {
-          model: Review,
-          attributes: [],
         }
       ],
-      attributes: {
-        include: [
-          'id',
-          'ownerId',
-          'address',
-          'city',
-          'state',
-          'country',
-          'lat',
-          'lng',
-          'name',
-          'description',
-          'price',
-          'createdAt',
-          'updatedAt',
-          [sequelize.fn('AVG', sequelize.col('Reviews.stars')), 'avgRating'],
-        ]
-      },
-      group: ['Spot.id', 'SpotImages.id'],
       limit: size,
       offset: (page - 1) * size,
     });
 
-    const spotsList = spots.map(spot => ({
-      id: spot.id,
-      ownerId: spot.ownerId,
-      address: spot.address,
-      city: spot.city,
-      state: spot.state,
-      country: spot.country,
-      lat: spot.lat,
-      lng: spot.lng,
-      name: spot.name,
-      description: spot.description,
-      price: spot.price,
-      createdAt: spot.createdAt,
-      updatedAt: spot.updatedAt,
-      avgRating: spot.dataValues.avgRating || null,
-      previewImage: spot.SpotImages.length ? spot.SpotImages[0].url : null,
+    // For each spot, calculate the average rating
+    const spotsList = await Promise.all(spots.map(async spot => {
+      // Calculate avgRating for each spot
+      const avgRating = await Review.findOne({
+        where: { spotId: spot.id },
+        attributes: [[sequelize.fn('AVG', sequelize.col('stars')), 'avgRating']],
+        raw: true
+      });
+
+      return {
+        id: spot.id,
+        ownerId: spot.ownerId,
+        address: spot.address,
+        city: spot.city,
+        state: spot.state,
+        country: spot.country,
+        lat: spot.lat,
+        lng: spot.lng,
+        name: spot.name,
+        description: spot.description,
+        price: spot.price,
+        createdAt: spot.createdAt,   // Include createdAt
+        updatedAt: spot.updatedAt,   // Include updatedAt
+        avgRating: avgRating ? avgRating.avgRating : null, // Include avgRating from Review table
+        previewImage: spot.SpotImages.length ? spot.SpotImages[0].url : null,
+      };
     }));
 
     return res.status(200).json({ Spots: spotsList, page, size });
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching spots:', err.message);
     return res.status(500).json({
       message: 'An error occurred while fetching spots.',
+      error: err.message
     });
   }
 });
+
+
 
 
 
