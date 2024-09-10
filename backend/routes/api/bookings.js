@@ -6,25 +6,41 @@ const { Op } = require('sequelize'); // Import Op for Sequelize operations
 
 
 router.get('/current', requireAuth, async (req, res) => {
-  const bookings = await Booking.findAll({
-    where: { userId: req.user.id }, // Fetch bookings by the current user
-    include: [
-      {
-        model: Spot,
-        attributes: [
-          'id', 'ownerId', 'address', 'city', 'state', 'country',
-          'lat', 'lng', 'name', 'price', // Include necessary spot details
-          [sequelize.literal('(SELECT url FROM "SpotImages" WHERE "SpotImages"."spotId" = "Spot"."id" AND "SpotImages"."preview" = true LIMIT 1)'), 'previewImage'] // Preview image dynamically
-        ]
-      }
-    ],
-    attributes: [
-      'id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt' // Include booking details
-    ]
-  });
+  try {
+    const bookings = await Booking.findAll({
+      where: { userId: req.user.id }, // Fetch bookings by the current user
+      include: [
+        {
+          model: Spot,
+          attributes: [
+            'id', 'ownerId', 'address', 'city', 'state', 'country',
+            'lat', 'lng', 'name', 'price' // Include necessary spot details
+          ],
+          include: [
+            {
+              model: SpotImage,
+              attributes: ['url'],
+              where: { preview: true },
+              required: false // If there's no preview image, don't exclude the spot
+            }
+          ]
+        }
+      ],
+      attributes: [
+        'id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt' // Include booking details
+      ]
+    });
 
-  return res.status(200).json({ Bookings: bookings });
+    return res.status(200).json({ Bookings: bookings || [] });
+  } catch (err) {
+    console.error('Error fetching bookings:', err.message);
+    return res.status(500).json({
+      title: 'Server Error',
+      message: err.message
+    });
+  }
 });
+
 
 
 

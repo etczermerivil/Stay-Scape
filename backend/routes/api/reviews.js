@@ -16,9 +16,15 @@ router.get('/current', requireAuth, async (req, res) => {
           model: Spot,
           attributes: [
             'id', 'ownerId', 'address', 'city', 'state', 'country',
-            'lat', 'lng', 'name', 'price', // Include necessary spot details
-            // Add preview image dynamically using sequelize.literal
-            [sequelize.literal('(SELECT url FROM "SpotImages" WHERE "SpotImages"."spotId" = "Spot"."id" AND "SpotImages"."preview" = true LIMIT 1)'), 'previewImage']
+            'lat', 'lng', 'name', 'price' // Include necessary spot details
+          ],
+          include: [
+            {
+              model: SpotImage,
+              attributes: ['url'],
+              where: { preview: true },
+              required: false // If there's no preview image, don't exclude the spot
+            }
           ]
         },
         {
@@ -33,7 +39,7 @@ router.get('/current', requireAuth, async (req, res) => {
       attributes: ['id', 'userId', 'spotId', 'review', 'stars', 'createdAt', 'updatedAt'] // Ensure createdAt and updatedAt are included
     });
 
-    return res.status(200).json({ Reviews: reviews });
+    return res.status(200).json({ Reviews: reviews || [] });
   } catch (err) {
     console.error('Error fetching reviews:', err.message);
     return res.status(500).json({
@@ -43,36 +49,6 @@ router.get('/current', requireAuth, async (req, res) => {
   }
 });
 
-// Get all reviews for a specific spot by spotId (no authentication required)
-router.get('/', async (req, res) => {
-  const { spotId } = req.params;
-
-  // Find the spot to make sure it exists
-  const spot = await Spot.findByPk(spotId);
-  if (!spot) {
-    return res.status(404).json({
-      message: "Spot couldn't be found",
-    });
-  }
-
-  // Get reviews for the spot
-  const reviews = await Review.findAll({
-    where: { spotId },
-    include: [
-      {
-        model: User,
-        attributes: ['id', 'firstName', 'lastName']  // Include user details
-      },
-      {
-        model: ReviewImage,
-        attributes: ['id', 'url']  // Include review images
-      }
-    ],
-    attributes: ['id', 'userId', 'spotId', 'review', 'stars', 'createdAt', 'updatedAt'] // Include createdAt and updatedAt
-  });
-
-  return res.status(200).json({ Reviews: reviews });
-});
 
 // Create a new review for a spot by spotId (authentication required)
 router.post('/', requireAuth, async (req, res) => {
