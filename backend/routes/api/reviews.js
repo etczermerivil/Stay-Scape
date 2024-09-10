@@ -39,7 +39,40 @@ router.get('/current', requireAuth, async (req, res) => {
       attributes: ['id', 'userId', 'spotId', 'review', 'stars', 'createdAt', 'updatedAt'] // Ensure createdAt and updatedAt are included
     });
 
-    return res.status(200).json({ Reviews: reviews || [] });
+    // Reformat the reviews to match the required API format
+    const formattedReviews = reviews.map(review => ({
+      id: review.id,
+      userId: review.userId,
+      spotId: review.spotId,
+      review: review.review,
+      stars: review.stars,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
+      User: {
+        id: review.User.id,
+        firstName: review.User.firstName,
+        lastName: review.User.lastName
+      },
+      Spot: {
+        id: review.Spot.id,
+        ownerId: review.Spot.ownerId,
+        address: review.Spot.address,
+        city: review.Spot.city,
+        state: review.Spot.state,
+        country: review.Spot.country,
+        lat: review.Spot.lat,
+        lng: review.Spot.lng,
+        name: review.Spot.name,
+        price: review.Spot.price,
+        previewImage: review.Spot.SpotImages.length ? review.Spot.SpotImages[0].url : null
+      },
+      ReviewImages: review.ReviewImages.map(image => ({
+        id: image.id,
+        url: image.url
+      }))
+    }));
+
+    return res.status(200).json({ Reviews: formattedReviews || [] });
   } catch (err) {
     console.error('Error fetching reviews:', err.message);
     return res.status(500).json({
@@ -48,6 +81,7 @@ router.get('/current', requireAuth, async (req, res) => {
     });
   }
 });
+
 
 // Get all Reviews for a Spot based on the Spot's id
 router.get('/', async (req, res) => {

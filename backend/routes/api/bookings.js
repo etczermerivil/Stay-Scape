@@ -21,7 +21,7 @@ router.get('/current', requireAuth, async (req, res) => {
               model: SpotImage,
               attributes: ['url'],
               where: { preview: true },
-              required: false // If there's no preview image, don't exclude the spot
+              required: false // Ensure the spot can still be returned even if no preview image exists
             }
           ]
         }
@@ -31,7 +31,30 @@ router.get('/current', requireAuth, async (req, res) => {
       ]
     });
 
-    return res.status(200).json({ Bookings: bookings || [] });
+    const formattedBookings = bookings.map(booking => ({
+      id: booking.id,
+      spotId: booking.spotId,
+      Spot: {
+        id: booking.Spot.id,
+        ownerId: booking.Spot.ownerId,
+        address: booking.Spot.address,
+        city: booking.Spot.city,
+        state: booking.Spot.state,
+        country: booking.Spot.country,
+        lat: booking.Spot.lat,
+        lng: booking.Spot.lng,
+        name: booking.Spot.name,
+        price: booking.Spot.price,
+        previewImage: booking.Spot.SpotImages.length ? booking.Spot.SpotImages[0].url : null // Get the preview image if available
+      },
+      userId: booking.userId,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt
+    }));
+
+    return res.status(200).json({ Bookings: formattedBookings });
   } catch (err) {
     console.error('Error fetching bookings:', err.message);
     return res.status(500).json({
@@ -44,42 +67,54 @@ router.get('/current', requireAuth, async (req, res) => {
 
 
 
-
 router.get('/', requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
-  // Check if the spot exists
-  const spot = await Spot.findByPk(spotId);
-
-  if (!spot) {
-    return res.status(404).json({
-      message: "Spot couldn't be found",
-    });
-  }
-
-  // If the current user is the owner of the spot
-  if (spot.ownerId === req.user.id) {
+  try {
+    // Fetch bookings for the specified spot
     const bookings = await Booking.findAll({
       where: { spotId },
       include: [
         {
-          model: User,
-          attributes: ['id', 'firstName', 'lastName'] // Include user details
+          model: User, // Always include user details
+          attributes: ['id', 'firstName', 'lastName']
         }
       ],
-      attributes: ['id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt']
+      attributes: [
+        'id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt'
+      ]
     });
 
-    return res.status(200).json({ Bookings: bookings });
+    // Check if bookings were found
+    if (bookings.length === 0) {
+      return res.status(404).json({
+        message: "Spot couldn't be found"
+      });
+    }
+
+    return res.status(200).json({
+      Bookings: bookings.map(booking => ({
+        User: {
+          id: booking.User.id,
+          firstName: booking.User.firstName,
+          lastName: booking.User.lastName
+        },
+        id: booking.id,
+        spotId: booking.spotId,
+        userId: booking.userId,
+        startDate: booking.startDate,
+        endDate: booking.endDate,
+        createdAt: booking.createdAt,
+        updatedAt: booking.updatedAt
+      }))
+    });
+  } catch (err) {
+    console.error('Error fetching bookings:', err.message);
+    return res.status(500).json({
+      title: 'Server Error',
+      message: err.message
+    });
   }
-
-  // If the current user is not the owner of the spot
-  const bookings = await Booking.findAll({
-    where: { spotId },
-    attributes: ['spotId', 'startDate', 'endDate'] // Limited fields for non-owner
-  });
-
-  return res.status(200).json({ Bookings: bookings });
 });
 
 
