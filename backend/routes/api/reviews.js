@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { requireAuth } = require('../../utils/auth');
-const { Review, Spot, ReviewImage, User, sequelize } = require('../../db/models');
+const { Review, Spot, SpotImage, ReviewImage, User, sequelize } = require('../../db/models');
 
 const reviewImagesRouter = require('./review-images');
 router.use('/:reviewId/images', reviewImagesRouter);
