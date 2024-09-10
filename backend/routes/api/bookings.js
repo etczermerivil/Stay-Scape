@@ -1,7 +1,7 @@
 const express = require('express');
 const router = require('express').Router({ mergeParams: true }); // Allows access to :spotId
 const { requireAuth, requireProperAuthorization } = require('../../utils/auth');
-const { Booking, Spot, User, sequelize } = require('../../db/models');
+const { Booking, Spot, SpotImage, User, sequelize } = require('../../db/models');
 const { Op } = require('sequelize'); // Import Op for Sequelize operations
 
 
