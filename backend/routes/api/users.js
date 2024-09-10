@@ -71,10 +71,10 @@ router.post(
 
     const safeUser = {
       id: user.id,
-      email: user.email,
-      username: user.username,
       firstName: user.firstName,
-      lastName: user.lastName
+      lastName: user.lastName,
+      email: user.email,
+      username: user.username
     };
 
     // Set the token cookie
@@ -94,10 +94,10 @@ router.get('/profile', requireAuth, async (req, res) => {
   return res.json({
     user: {
       id: user.id,
-      email: user.email,
-      username: user.username,
       firstName: user.firstName,
-      lastName: user.lastName
+      lastName: user.lastName,
+      email: user.email,
+      username: user.username
     }
   });
 });
@@ -114,10 +114,11 @@ router.get('/current', requireAuth, async (req, res) => {
 
   return res.json({
     id: user.id,
-    email: user.email,
-    username: user.username,
     firstName: user.firstName,
     lastName: user.lastName,
+    email: user.email,
+    username: user.username
+
   });
 });
 
