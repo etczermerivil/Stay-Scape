@@ -67,16 +67,26 @@ router.get('/current', requireAuth, async (req, res) => {
 
 
 
+
 router.get('/', requireAuth, async (req, res) => {
   const { spotId } = req.params;
+  const { user } = req; // This is the logged-in user from `requireAuth`
 
   try {
+    // Fetch the spot to verify its existence and ownership
+    const spot = await Spot.findByPk(spotId);
+    if (!spot) {
+      return res.status(404).json({
+        message: "Spot couldn't be found"
+      });
+    }
+
     // Fetch bookings for the specified spot
     const bookings = await Booking.findAll({
       where: { spotId },
       include: [
         {
-          model: User, // Always include user details
+          model: User, // Include user details for owner scenario
           attributes: ['id', 'firstName', 'lastName']
         }
       ],
@@ -85,29 +95,34 @@ router.get('/', requireAuth, async (req, res) => {
       ]
     });
 
-    // Check if bookings were found
-    if (bookings.length === 0) {
-      return res.status(404).json({
-        message: "Spot couldn't be found"
+    if (spot.ownerId === user.id) {
+      // If the current user is the owner of the spot, return full booking info with user details
+      return res.status(200).json({
+        Bookings: bookings.map(booking => ({
+          User: {
+            id: booking.User.id,
+            firstName: booking.User.firstName,
+            lastName: booking.User.lastName
+          },
+          id: booking.id,
+          spotId: booking.spotId,
+          userId: booking.userId,
+          startDate: booking.startDate,
+          endDate: booking.endDate,
+          createdAt: booking.createdAt,
+          updatedAt: booking.updatedAt
+        }))
+      });
+    } else {
+      // If the user is not the owner, return only limited booking info
+      return res.status(200).json({
+        Bookings: bookings.map(booking => ({
+          spotId: booking.spotId,
+          startDate: booking.startDate,
+          endDate: booking.endDate
+        }))
       });
     }
-
-    return res.status(200).json({
-      Bookings: bookings.map(booking => ({
-        User: {
-          id: booking.User.id,
-          firstName: booking.User.firstName,
-          lastName: booking.User.lastName
-        },
-        id: booking.id,
-        spotId: booking.spotId,
-        userId: booking.userId,
-        startDate: booking.startDate,
-        endDate: booking.endDate,
-        createdAt: booking.createdAt,
-        updatedAt: booking.updatedAt
-      }))
-    });
   } catch (err) {
     console.error('Error fetching bookings:', err.message);
     return res.status(500).json({
@@ -116,6 +131,7 @@ router.get('/', requireAuth, async (req, res) => {
     });
   }
 });
+
 
 
 

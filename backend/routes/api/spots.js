@@ -168,16 +168,25 @@ router.get('/', async (req, res) => {
     let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
 
     // Set defaults and validate
-    page = parseInt(page) || 1;
-    size = parseInt(size) || 20;
+  // Set defaults for size and validate page and size
+  page = parseInt(page);
+  size = parseInt(size);
 
-    if (page < 1) {
-      return res.status(400).json({ message: 'Bad Request', errors: { page: 'Page must be greater than or equal to 1' } });
-    }
+// Validation for page and size parameters
+if (isNaN(page) || page < 1) {
+  return res.status(400).json({
+    message: 'Bad Request',
+    errors: { page: 'Page must be greater than or equal to 1' }
+  });
+}
 
-    if (size < 1 || size > 20) {
-      return res.status(400).json({ message: 'Bad Request', errors: { size: 'Size must be between 1 and 20' } });
-    }
+// If size is not provided or invalid, set default
+if (isNaN(size) || size < 1 || size > 20) {
+  return res.status(400).json({
+    message: 'Bad Request',
+    errors: { size: 'Size must be between 1 and 20' }
+  });
+}
 
     const where = {};
 
