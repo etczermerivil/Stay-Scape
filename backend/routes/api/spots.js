@@ -169,8 +169,9 @@ router.get('/', async (req, res) => {
 
     // Set defaults and validate
   // Set defaults for size and validate page and size
-  page = parseInt(page);
-  size = parseInt(size);
+ // Set defaults for page and size
+page = page ? parseInt(page) : 1;
+size = size ? parseInt(size) : 20;
 
 // Validation for page and size parameters
 if (isNaN(page) || page < 1) {
@@ -180,7 +181,6 @@ if (isNaN(page) || page < 1) {
   });
 }
 
-// If size is not provided or invalid, set default
 if (isNaN(size) || size < 1 || size > 20) {
   return res.status(400).json({
     message: 'Bad Request',
