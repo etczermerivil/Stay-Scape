@@ -1,0 +1,29 @@
+/* frontend/src/components/Navigation/Navigation.css */
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f8f8;
+}
+
+.nav-left {
+    flex: 1;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Adds space between Log In and Sign Up */
+}
+
+.nav-right a {
+    text-decoration: none;
+    color: #4B0082;
+    font-size: 18px;
+}
+
+.nav-right a:hover {
+    text-decoration: underline;
+}

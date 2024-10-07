@@ -32,6 +32,7 @@ export const signup = (user) => async (dispatch) => {
   return response;
 };
 
+
 // Thunk Action for Logging in
 export const login = (credential, password) => async (dispatch) => {
   const response = await csrfFetch('/api/session', {
@@ -54,6 +55,13 @@ export const restoreUser = () => async (dispatch) => {
   dispatch(setUser(data.user));  // Set the session user in the store
   return response;
 };
+// Thunk action Log Out
+export const logout = () => async (dispatch) => {
+  const response = await csrfFetch('/api/session', { method: 'DELETE' });
+  dispatch(removeUser());
+  return response;
+};
+
 
 // Reducer
 const initialState = { user: null };
