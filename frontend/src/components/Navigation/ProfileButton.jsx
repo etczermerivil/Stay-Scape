@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { FaUserCircle, FaSignOutAlt, FaEnvelope } from 'react-icons/fa';
 import * as sessionActions from '../../store/session';
+import OpenModalMenuItem from './OpenModalMenuItem';
+import LoginFormModal from '../LoginFormModal/LoginFormModal';
+import SignupFormModal from '../SignupFormModal/SignupFormModal';
 import './ProfileButton.css';
 
 function ProfileButton({ user }) {
@@ -26,13 +29,15 @@ function ProfileButton({ user }) {
     };
 
     document.addEventListener('click', closeMenu);
-
     return () => document.removeEventListener('click', closeMenu);
   }, [showMenu]);
+
+  const closeMenu = () => setShowMenu(false);
 
   const logout = (e) => {
     e.preventDefault();
     dispatch(sessionActions.logout());
+    closeMenu();
   };
 
   return (
@@ -41,22 +46,39 @@ function ProfileButton({ user }) {
         <FaUserCircle size={24} />
       </button>
       <ul className={`profile-dropdown ${showMenu ? '' : 'hidden'}`} ref={ulRef}>
-        <li>
-          <FaUserCircle style={{ marginRight: '8px' }} />
-          {user.username}
-        </li>
-        <li>
-          <FaUserCircle style={{ marginRight: '8px' }} />
-          {user.firstName} {user.lastName}
-        </li>
-        <li>
-          <FaEnvelope style={{ marginRight: '8px' }} />
-          {user.email}
-        </li>
-        <li onClick={logout}>
-          <FaSignOutAlt style={{ marginRight: '8px' }} />
-          Log Out
-        </li>
+        {user ? (
+          <>
+            <li>
+              <FaUserCircle style={{ marginRight: '8px' }} />
+              {user.username}
+            </li>
+            <li>
+              <FaUserCircle style={{ marginRight: '8px' }} />
+              {user.firstName} {user.lastName}
+            </li>
+            <li>
+              <FaEnvelope style={{ marginRight: '8px' }} />
+              {user.email}
+            </li>
+            <li onClick={logout}>
+              <FaSignOutAlt style={{ marginRight: '8px' }} />
+              Log Out
+            </li>
+          </>
+        ) : (
+          <>
+            <OpenModalMenuItem
+              itemText="Log In"
+              onItemClick={closeMenu}
+              modalComponent={<LoginFormModal />}
+            />
+            <OpenModalMenuItem
+              itemText="Sign Up"
+              onItemClick={closeMenu}
+              modalComponent={<SignupFormModal />}
+            />
+          </>
+        )}
       </ul>
     </div>
   );

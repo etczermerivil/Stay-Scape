@@ -1,16 +1,16 @@
 // frontend/src/App.jsx
 
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 
 import Navigation from './components/Navigation/Navigation';
-// import OpenModalButton from './components/OpenModalButton/OpenModalButton'; // Import OpenModalButton
 import * as sessionActions from './store/session';
 
 function Layout() {
   const dispatch = useDispatch();
   const [isLoaded, setIsLoaded] = useState(false);
+  const sessionUser = useSelector((state) => state.session.user); // Get session user from Redux store
 
   useEffect(() => {
     dispatch(sessionActions.restoreUser()).then(() => setIsLoaded(true));
@@ -20,16 +20,14 @@ function Layout() {
     <>
       {/* Render Navigation bar on all pages */}
       <Navigation isLoaded={isLoaded} />
+
+      {/* Render conditional header based on sessionUser */}
+      <header>
+        <h1>{sessionUser ? `Welcome, ${sessionUser.firstName}!` : "Welcome!"}</h1>
+      </header>
+
       {/* Conditionally render Outlet only after user restoration */}
       {isLoaded && <Outlet />}
-
-      {/* Add the OpenModalButton here to test the modal */}
-      {/* <OpenModalButton
-        buttonText="Open Test Modal"
-        modalComponent={<h2>Hello, this is a test modal!</h2>}
-        onButtonClick={() => console.log('Button clicked!')}
-        onModalClose={() => console.log('Modal closed!')}
-      /> */}
     </>
   );
 }
@@ -38,7 +36,7 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <h1>Welcome!</h1> }
+      { path: '/', element: null }
     ]
   }
 ]);

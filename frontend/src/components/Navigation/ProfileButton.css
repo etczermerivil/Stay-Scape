@@ -1,51 +1,83 @@
 /* frontend/src/components/Navigation/ProfileButton.css */
 
 .profile-button-container {
-    position: relative; /* Necessary for dropdown positioning */
-  }
+  position: relative; /* Necessary for dropdown positioning */
+}
 
-  .profile-dropdown {
-    position: absolute;
-    right: 0;
-    top: 40px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    width: 250px;
-    padding: 8px 0;
-    z-index: 10;
-  }
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  width: 250px;
+  padding: 8px 0;
+  z-index: 10;
+}
 
-  .profile-dropdown li {
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    font-size: 14px;
-    color: #333;
-    cursor: pointer;
-    overflow-wrap: break-word;
-    transition: background-color 0.2s ease;
-  }
+.profile-dropdown li {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  overflow-wrap: break-word;
+  transition: background-color 0.2s ease;
+}
 
-  .profile-dropdown li:hover {
-    background-color: #f0f0f0;
-  }
+.profile-dropdown li:hover {
+  background-color: #f0f0f0;
+}
 
-  .profile-dropdown li button {
-    background: none;
-    border: none;
-    font: inherit;
-    color: inherit;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-  }
+/* Style for the buttons in the dropdown */
+.profile-dropdown li button {
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
 
-  .profile-dropdown li:not(:last-child) {
-    border-bottom: 1px solid #eee;
-  }
+.profile-dropdown li:not(:last-child) {
+  border-bottom: 1px solid #eee;
+}
 
-  .hidden {
-    display: none;
-  }
+.hidden {
+  display: none;
+}
+
+/* New styles for Login and Signup options */
+.profile-dropdown li .open-modal-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #333;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+}
+
+.profile-dropdown li .open-modal-button:hover {
+  background-color: #f0f0f0;
+}
+
+.profile-dropdown li .open-modal-button svg {
+  margin-right: 8px;
+}
+
+.profile-button-container button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 24px;
+}
