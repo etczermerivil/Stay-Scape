@@ -6,24 +6,38 @@
     align-items: center;
     padding: 10px 20px;
     background-color: #f8f8f8;
-}
+  }
 
-.nav-left {
+  .nav-left {
     flex: 1;
-}
+  }
 
-.nav-right {
+  .nav-link {
+    text-decoration: none;
+    color: #1B1B1B;
+    font-size: 18px;
+  }
+
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+
+  .nav-right {
     display: flex;
     align-items: center;
-    gap: 20px; /* Adds space between Log In and Sign Up */
-}
+    gap: 20px; /* Adds space between buttons */
+  }
 
-.nav-right a {
-    text-decoration: none;
-    color: #4B0082;
-    font-size: 18px;
-}
+  .nav-right button {
+    background: #1B1B1B;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
 
-.nav-right a:hover {
-    text-decoration: underline;
-}
+  .nav-right button:hover {
+    background: #5c2a9d;
+  }

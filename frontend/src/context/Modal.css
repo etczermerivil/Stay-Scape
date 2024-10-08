@@ -1,5 +1,5 @@
-
 /* frontend/src/context/Modal.css */
+
 #modal {
   position: fixed;
   top: 0;
@@ -17,10 +17,16 @@
   right: 0;
   left: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.7); /* Faded black background */
 }
 
 #modal-content {
-  position: absolute;
+  position: relative; /* Use relative for the centered position */
   background-color: white;
+  padding: 30px; /* Adds padding around the content */
+  border-radius: 15px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  max-width: 400px; /* Control modal width */
+  width: 100%; /* Responsive width */
+  box-sizing: border-box; /* Include padding in width calculation */
 }

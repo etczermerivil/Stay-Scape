@@ -15,38 +15,33 @@ const removeUser = () => ({
 });
 
 // Thunk Action for Signing Up
-export const signup = (user) => async (dispatch) => {
-  const { username, firstName, lastName, email, password } = user;
-  const response = await csrfFetch("/api/users", {
-    method: "POST",
-    body: JSON.stringify({
-      username,
-      firstName,
-      lastName,
-      email,
-      password
-    })
+export const signup = ({ username, firstName, lastName, email, password }) => async (dispatch) => {
+  const response = await csrfFetch('/api/users', {
+    method: 'POST',
+    body: { username, firstName, lastName, email, password } // Directly use the object without stringifying
   });
+
   const data = await response.json();
-  dispatch(setUser(data.user));
+  dispatch(setUser(data.user)); // Make sure `setUser` is defined in the same way as for `login`
   return response;
 };
 
 
 // Thunk Action for Logging in
-export const login = (credential, password) => async (dispatch) => {
+export const login = ({ credential, password }) => async (dispatch) => {
+  console.log("Dispatching login with:", { credential, password }); // Log payload
+
+  // Make sure the payload is structured correctly without nesting
   const response = await csrfFetch('/api/session', {
     method: 'POST',
-    body: JSON.stringify({
-      credential,
-      password,
-    }),
+    body: { credential, password }, // Flattened structure
   });
 
   const data = await response.json();
-  dispatch(setUser(data.user));
+  dispatch(setUser(data.user)); // Use setUser instead of setSessionUser
   return response;
 };
+
 
 // Thunk Action for Restoring Session User
 export const restoreUser = () => async (dispatch) => {
