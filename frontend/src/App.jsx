@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import LoginFormPage from './components/LoginFormPage/LoginFormPage';
 import SignupFormPage from './components/SignupFormPage/SignupFormPage';
 import Navigation from './components/Navigation/Navigation';
+import OpenModalButton from './components/OpenModalButton/OpenModalButton'; // Import OpenModalButton
 import * as sessionActions from './store/session';
 
 function Layout() {
@@ -22,6 +23,14 @@ function Layout() {
       <Navigation isLoaded={isLoaded} />
       {/* Conditionally render Outlet only after user restoration */}
       {isLoaded && <Outlet />}
+
+      {/* Add the OpenModalButton here to test the modal */}
+      <OpenModalButton
+        buttonText="Open Test Modal"
+        modalComponent={<h2>Hello, this is a test modal!</h2>}
+        onButtonClick={() => console.log('Button clicked!')}
+        onModalClose={() => console.log('Modal closed!')}
+      />
     </>
   );
 }
