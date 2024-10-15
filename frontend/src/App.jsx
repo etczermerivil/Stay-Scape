@@ -1,5 +1,3 @@
-// frontend/src/App.jsx
-
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
@@ -18,11 +16,15 @@ function Layout() {
     dispatch(sessionActions.restoreUser()).then(() => setIsLoaded(true));
   }, [dispatch]);
 
+  // Check if the user is the demo user based on username
+  const isDemoUser = sessionUser?.username === 'Demo-lition';
+  const greetingName = isDemoUser ? 'Guest' : sessionUser?.firstName;
+
   return (
     <>
       <Navigation isLoaded={isLoaded} />
       <header>
-        <h1>{sessionUser ? `Welcome, ${sessionUser.firstName}!` : "Welcome!"}</h1>
+        <h1>{sessionUser ? `Welcome, ${greetingName}!` : "Welcome!"}</h1>
       </header>
       {isLoaded && <Outlet />}
     </>
@@ -33,8 +35,8 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <SpotList /> },         // Route for SpotList component
-      { path: '/create-spot', element: <CreateSpotForm /> }, // Route for CreateSpotForm component
+      { path: '/', element: <SpotList /> },
+      { path: '/create-spot', element: <CreateSpotForm /> },
     ],
   },
 ]);

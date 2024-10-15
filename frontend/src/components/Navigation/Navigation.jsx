@@ -15,6 +15,11 @@ function Navigation({ isLoaded }) {
       </div>
       {isLoaded && (
         <div className="nav-right">
+          {sessionUser && (
+            <NavLink to="/create-stay" className="nav-link create-stay-button">
+              Create Your Stay
+            </NavLink>
+          )}
           <ProfileButton user={sessionUser} />
         </div>
       )}

@@ -1,11 +1,8 @@
-// frontend/src/components/LoginFormModal/LoginFormModal.jsx
-
 import { useState } from 'react';
 import * as sessionActions from '../../store/session';
 import { useDispatch } from 'react-redux';
 import useModal from '../../context/useModal';
 import './LoginForm.css';
-
 
 function LoginFormModal() {
   const dispatch = useDispatch();
@@ -14,26 +11,32 @@ function LoginFormModal() {
   const [errors, setErrors] = useState({});
   const { closeModal } = useModal();
 
+  // Demo user credentials
+  const demoUser = {
+    credential: 'Demo-lition',
+    password: 'password'
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrors({});
 
-    console.log("Attempting login with:", { credential, password });
-
     return dispatch(sessionActions.login({ credential, password }))
-      .then(() => {
-        console.log("Login successful, closing modal.");
-        closeModal();
-      })
+      .then(() => closeModal())
       .catch(async (res) => {
         const data = await res.json();
         if (data && data.errors) {
           setErrors(data.errors);
-          console.log("Login failed with errors:", data.errors);
         }
       });
   };
 
+  const handleDemoLogin = () => {
+    // Login as the demo user and close the modal on success
+    dispatch(sessionActions.login(demoUser))
+      .then(() => closeModal())
+      .catch((err) => console.error("Demo login failed", err));
+  };
 
   return (
     <>
@@ -60,7 +63,8 @@ function LoginFormModal() {
         {errors.credential && (
           <p>{errors.credential}</p>
         )}
-        <button type="submit">Log In</button>
+        <button type="submit" className="login-button">Log In</button>
+        <button type="button" className="demo-button" onClick={handleDemoLogin}>Log In as Demo User</button>
       </form>
     </>
   );
