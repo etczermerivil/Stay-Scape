@@ -16,7 +16,7 @@ function Navigation({ isLoaded }) {
       {isLoaded && (
         <div className="nav-right">
           {sessionUser && (
-            <NavLink to="/create-stay" className="nav-link create-stay-button">
+            <NavLink to="/create-spot" className="nav-link create-stay-button">
               Create Your Stay
             </NavLink>
           )}

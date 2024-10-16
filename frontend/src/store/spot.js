@@ -34,10 +34,24 @@ export const fetchSpots = () => async (dispatch) => {
   }
 };
 
-export const createSpot = (spot) => async (dispatch) => {
+export const createSpot = (spot) => async (dispatch, getState) => {
+  // Retrieve tokens from the Redux state
+  const state = getState();
+  const csrfToken = state.session.csrfToken; // Ensure this is valid
+  const authToken = state.session.authToken; // Ensure this is valid
+
+  // Log tokens for debugging
+  console.log("CSRF Token:", csrfToken);
+  console.log("Auth Token:", authToken);
+
+  // Make the POST request to create a new spot
   const response = await fetch('/api/spots', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`, // Add Auth Token if required
+      'X-CSRF-Token': csrfToken, // Add CSRF Token if required
+    },
     body: JSON.stringify(spot),
   });
 
@@ -45,8 +59,14 @@ export const createSpot = (spot) => async (dispatch) => {
     const newSpot = await response.json();
     dispatch(addSpot(newSpot));
     return newSpot;
+  } else {
+    const errorData = await response.json();
+    console.log("Error Data:", errorData); // Log any error messages for insights
+    return { errors: errorData.errors };
   }
 };
+
+
 
 export const editSpot = (spot) => async (dispatch) => {
   const response = await fetch(`/api/spots/${spot.id}`, {
@@ -61,6 +81,20 @@ export const editSpot = (spot) => async (dispatch) => {
     return updatedSpot;
   }
 };
+
+// Add this function to spot.js
+
+export const fetchSpotById = (spotId) => async (dispatch) => {
+  const response = await fetch(`/api/spots/${spotId}`);
+  if (response.ok) {
+    const spot = await response.json();
+    dispatch(addSpot(spot)); // Make sure 'addSpot' action creator is defined and used correctly
+  } else {
+    // Handle error if necessary
+    console.error('Failed to fetch spot');
+  }
+};
+
 
 export const removeSpot = (spotId) => async (dispatch) => {
   const response = await fetch(`/api/spots/${spotId}`, {
