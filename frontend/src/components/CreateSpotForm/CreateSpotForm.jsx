@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createSpot } from '../../store/spot';
+import { useNavigate } from 'react-router-dom';
+
 import './CreateSpotForm.css';
 
 function CreateSpotForm() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [country, setCountry] = useState('United States');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
@@ -64,7 +67,11 @@ function CreateSpotForm() {
     console.log("New Spot Data:", newSpot);
 
     try {
-      await dispatch(createSpot(newSpot));
+      const createdSpot = await dispatch(createSpot(newSpot));
+      if (createdSpot && createdSpot.id) {
+        // Use navigate instead of history.push
+        navigate(`/spots/${createdSpot.id}`);
+      }
     } catch (error) {
       console.error("Error creating spot:", error);
     } finally {
