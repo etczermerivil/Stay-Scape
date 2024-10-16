@@ -340,8 +340,26 @@ router.post('/:spotId/images', requireAuth, async (req, res) => {
 
 
 // POST create a spot (authentication required)
+
 router.post('/', requireAuth, async (req, res) => {
+
+  router.post('/', requireAuth, async (req, res) => {
+    console.log('Received Request Headers:', req.headers);
+    console.log('Received Request Body:', req.body);
+
+    const { address, city, state, country, lat, lng, name, description, price } = req.body;
+
+    // Continue with your validation and response code...
+  });
+
   const { address, city, state, country, lat, lng, name, description, price } = req.body;
+
+  // Log the incoming data for debugging
+  console.log('Request Body:', req.body);
+
+  // Convert lat and lng to numbers to ensure correct type
+  const latitude = Number(lat);
+  const longitude = Number(lng);
 
   // Validation errors object
   let errors = {};
@@ -353,13 +371,13 @@ router.post('/', requireAuth, async (req, res) => {
   if (!country) errors.country = "Country is required";
 
   // Latitude validation (must be between -90 and 90)
-  if (lat === undefined || lat < -90 || lat > 90) {
-    errors.lat = "Latitude must be within -90 and 90";
+  if (latitude === undefined || isNaN(latitude) || latitude < -90 || latitude > 90) {
+    errors.lat = "Latitude must be a valid number within -90 and 90";
   }
 
   // Longitude validation (must be between -180 and 180)
-  if (lng === undefined || lng < -180 || lng > 180) {
-    errors.lng = "Longitude must be within -180 and 180";
+  if (longitude === undefined || isNaN(longitude) || longitude < -180 || longitude > 180) {
+    errors.lng = "Longitude must be a valid number within -180 and 180";
   }
 
   // Name validation (must be less than 50 characters)
@@ -392,8 +410,8 @@ router.post('/', requireAuth, async (req, res) => {
     city,
     state,
     country,
-    lat,
-    lng,
+    lat: latitude,  // using the parsed number values
+    lng: longitude, // using the parsed number values
     name,
     description,
     price
