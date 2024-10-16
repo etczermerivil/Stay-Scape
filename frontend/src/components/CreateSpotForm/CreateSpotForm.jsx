@@ -1,24 +1,22 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { createSpot } from '../../store/spot';
 import './CreateSpotForm.css';
 
 function CreateSpotForm() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const [country, setCountry] = useState('United States');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
   const [description, setDescription] = useState('');
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [imageUrls, setImageUrls] = useState(['', '', '', '', '']);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageUrlChange = (index, value) => {
     const updatedUrls = [...imageUrls];
@@ -29,46 +27,52 @@ function CreateSpotForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate latitude and longitude
-    const validationErrors = {};
-    if (latitude < -90 || latitude > 90) validationErrors.latitude = 'Latitude must be between -90 and 90.';
-    if (longitude < -180 || longitude > 180) validationErrors.longitude = 'Longitude must be between -180 and 180.';
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length) return;
+    // Prevent submission if already submitting
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
-    const spotData = {
-      country,
+    // Explicitly parse lat and lng as numbers
+    const parsedLat = parseFloat(lat);
+    const parsedLng = parseFloat(lng);
+
+    console.log("Parsed Latitude:", parsedLat);
+    console.log("Parsed Longitude:", parsedLng);
+
+    // Check if lat or lng are NaN and stop here if they are
+    if (isNaN(parsedLat) || isNaN(parsedLng)) {
+      setErrors({
+        lat: isNaN(parsedLat) ? 'Latitude must be a valid number' : undefined,
+        lng: isNaN(parsedLng) ? 'Longitude must be a valid number' : undefined,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Build the newSpot object with all properties
+    const newSpot = {
       address,
       city,
       state,
-      latitude,
-      longitude,
-      description,
+      country,
+      lat: parsedLat,
+      lng: parsedLng,
       name,
-      price,
-      imageUrls: imageUrls.filter((url) => url !== ''),
+      description,
+      price: parseFloat(price),
     };
 
-    // Log spotData to check what is being sent
-    console.log("Spot data being sent to createSpot:", spotData);
+    console.log("New Spot Data:", newSpot);
 
-    const newSpot = await dispatch(createSpot(spotData));
-    if (newSpot) {
-      navigate(`/spots/${newSpot.id}`);
+    try {
+      await dispatch(createSpot(newSpot));
+    } catch (error) {
+      console.error("Error creating spot:", error);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // Reset form fields
-    setCountry('United States');
-    setAddress('');
-    setCity('');
-    setState('');
-    setLatitude('');
-    setLongitude('');
-    setDescription('');
-    setName('');
-    setPrice('');
-    setImageUrls(['', '', '', '', '']);
   };
+
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -99,11 +103,11 @@ function CreateSpotForm() {
         <input
           type="number"
           step="0.000001"
-          value={latitude}
-          onChange={(e) => setLatitude(e.target.value)}
+          value={lat}
+          onChange={(e) => setLat(e.target.value ? parseFloat(e.target.value) : '')}
           required
         />
-        {errors.latitude && <p className="error">{errors.latitude}</p>}
+        {errors.lat && <p className="error">{errors.lat}</p>}
       </label>
 
       <label>
@@ -111,11 +115,11 @@ function CreateSpotForm() {
         <input
           type="number"
           step="0.000001"
-          value={longitude}
-          onChange={(e) => setLongitude(e.target.value)}
+          value={lng}
+          onChange={(e) => setLng(e.target.value ? parseFloat(e.target.value) : '')}
           required
         />
-        {errors.longitude && <p className="error">{errors.longitude}</p>}
+        {errors.lng && <p className="error">{errors.lng}</p>}
       </label>
 
       <label>

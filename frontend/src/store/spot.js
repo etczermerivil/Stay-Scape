@@ -1,3 +1,5 @@
+import { csrfFetch } from './csrf';
+
 // Action Types
 const LOAD_SPOTS = 'spots/LOAD_SPOTS';
 const ADD_SPOT = 'spots/ADD_SPOT';
@@ -34,42 +36,71 @@ export const fetchSpots = () => async (dispatch) => {
   }
 };
 
-export const createSpot = (spot) => async (dispatch, getState) => {
-  // Retrieve tokens from the Redux state
-  const state = getState();
-  const csrfToken = state.session.csrfToken; // Ensure this is valid
-  const authToken = state.session.authToken; // Ensure this is valid
+// store/spot.js
+export const createSpot = (spot) => async (dispatch) => {
+  const { address, city, state, country, lat, lng, name, description, price } = spot;
 
-  // Log tokens for debugging
-  console.log("CSRF Token:", csrfToken);
-  console.log("Auth Token:", authToken);
+  console.log("Creating Spot with Data:", { address, city, state, country, lat, lng, name, description, price });
 
-  // Make the POST request to create a new spot
-  const response = await fetch('/api/spots', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`, // Add Auth Token if required
-      'X-CSRF-Token': csrfToken, // Add CSRF Token if required
-    },
-    body: JSON.stringify(spot),
-  });
+  try {
+    const response = await csrfFetch('/api/spots', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {  // Pass as a plain object
+        address,
+        city,
+        state,
+        country,
+        lat,
+        lng,
+        name,
+        description,
+        price,
+      },
+    });
 
-  if (response.ok) {
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error Data:", errorData);
+      throw new Error("Failed to create spot");
+    }
+
     const newSpot = await response.json();
-    dispatch(addSpot(newSpot));
+    dispatch(addSpot(newSpot)); // Add spot to Redux store
     return newSpot;
-  } else {
-    const errorData = await response.json();
-    console.log("Error Data:", errorData); // Log any error messages for insights
-    return { errors: errorData.errors };
+  } catch (error) {
+    console.error("Request failed:", error);
+    return { errors: error.message };
   }
 };
 
 
 
+export const postSpotImage = (image) => async () => {
+  const { spotId, url, preview } = image;
+
+  const response = await csrfFetch(`/api/spots/${spotId}/images`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url, preview }),
+  });
+
+  if (response.ok) {
+    const newImage = await response.json();
+    return newImage;
+  } else {
+    const errorData = await response.json();
+    console.error("Image Upload Error:", errorData);
+    return { errors: errorData.errors };
+  }
+};
+
 export const editSpot = (spot) => async (dispatch) => {
-  const response = await fetch(`/api/spots/${spot.id}`, {
+  const response = await csrfFetch(`/api/spots/${spot.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(spot),
@@ -79,30 +110,35 @@ export const editSpot = (spot) => async (dispatch) => {
     const updatedSpot = await response.json();
     dispatch(updateSpot(updatedSpot));
     return updatedSpot;
+  } else {
+    const errorData = await response.json();
+    console.error("Error updating spot:", errorData);
+    return { errors: errorData.errors };
   }
 };
-
-// Add this function to spot.js
 
 export const fetchSpotById = (spotId) => async (dispatch) => {
-  const response = await fetch(`/api/spots/${spotId}`);
+  const response = await csrfFetch(`/api/spots/${spotId}`);
   if (response.ok) {
     const spot = await response.json();
-    dispatch(addSpot(spot)); // Make sure 'addSpot' action creator is defined and used correctly
+    dispatch(addSpot(spot));
+    return spot;
   } else {
-    // Handle error if necessary
     console.error('Failed to fetch spot');
+    return null;
   }
 };
 
-
 export const removeSpot = (spotId) => async (dispatch) => {
-  const response = await fetch(`/api/spots/${spotId}`, {
+  const response = await csrfFetch(`/api/spots/${spotId}`, {
     method: 'DELETE',
   });
 
   if (response.ok) {
     dispatch(deleteSpot(spotId));
+  } else {
+    const errorData = await response.json();
+    console.error("Error deleting spot:", errorData);
   }
 };
 
@@ -132,9 +168,9 @@ export default function spotReducer(state = initialState, action) {
       };
     }
     case DELETE_SPOT: {
-      const newStateAfterDelete = { ...state };
-      delete newStateAfterDelete[action.spotId];
-      return newStateAfterDelete;
+      const newState = { ...state };
+      delete newState[action.spotId];
+      return newState;
     }
     default:
       return state;
