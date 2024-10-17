@@ -1,7 +1,7 @@
 /* frontend/src/components/Navigation/ProfileButton.css */
 
 .profile-button-container {
-  position: relative; /* Necessary for dropdown positioning */
+  position: relative;
 }
 
 .profile-dropdown {
@@ -12,7 +12,7 @@
   border-radius: 10px;
   border: 1px solid #ddd;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  width: 250px;
+  width: 220px;
   padding: 8px 0;
   z-index: 10;
 }
@@ -20,11 +20,12 @@
 .profile-dropdown li {
   display: flex;
   align-items: center;
-  padding: 10px 16px;
+  justify-content: flex-start;
+  height: 40px; /* Set a consistent height */
+  padding: 0 16px; /* Adjust padding as needed */
   font-size: 14px;
   color: #333;
   cursor: pointer;
-  overflow-wrap: break-word;
   transition: background-color 0.2s ease;
 }
 
@@ -32,7 +33,10 @@
   background-color: #f0f0f0;
 }
 
-/* Style for the buttons in the dropdown */
+.profile-dropdown li svg {
+  margin-right: 10px;
+}
+
 .profile-dropdown li button {
   background: none;
   border: none;
@@ -51,18 +55,17 @@
   display: none;
 }
 
-/* New styles for Login and Signup options */
+/* Specific for Login and Signup Options */
 .profile-dropdown li .open-modal-button {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 10px 16px;
+  padding: 5px 10px;
   font-size: 14px;
   color: #333;
   border: none;
   background: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
   text-align: left;
 }
 
@@ -74,10 +77,63 @@
   margin-right: 8px;
 }
 
+/* Adjusting button appearance */
 .profile-button-container button {
   background: none;
   border: none;
   cursor: pointer;
   color: #333;
   font-size: 24px;
+}
+
+.profile-dropdown li:hover {
+  background-color: #f0f0f0; /* Light grey hover effect */
+}
+
+.profile-dropdown li {
+  padding: 12px 20px; /* Adjusted padding for all items */
+}
+
+.profile-dropdown li a {
+  display: block;
+  padding: 10px 0;
+  text-decoration: none;
+  color: #333;
+}
+
+.profile-dropdown li a:hover {
+  background-color: #f0f0f0; /* Light grey hover for links */
+}
+
+.profile-dropdown li .action-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.profile-dropdown li .action-link:hover {
+  background-color: #f0f0f0; /* Light grey hover */
+}
+
+.action-link {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  font-size: inherit;
+  color: inherit;
+  padding: 0; /* Remove extra padding from buttons */
+  display: flex;
+  align-items: center;
+}
+
+.action-link svg {
+  margin-right: 8px;
 }

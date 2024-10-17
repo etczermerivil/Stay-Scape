@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { FaUserCircle, FaSignOutAlt, FaEnvelope } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaUserCircle, FaSignOutAlt, FaRegIdBadge } from 'react-icons/fa'; // Updated icons
 import * as sessionActions from '../../store/session';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
@@ -11,6 +12,7 @@ import './ProfileButton.css';
 
 function ProfileButton({ user }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef();
 
@@ -40,6 +42,16 @@ function ProfileButton({ user }) {
     closeMenu();
   };
 
+  const handleManageSpots = () => {
+    closeMenu();
+    navigate('/manage-spots');
+  };
+
+  const handleManageReviews = () => {
+    closeMenu();
+    navigate('/manage-reviews');
+  };
+
   return (
     <div className="profile-button-container">
       <button onClick={toggleMenu}>
@@ -53,13 +65,15 @@ function ProfileButton({ user }) {
               {user.username}
             </li>
             <li>
-              <FaUserCircle style={{ marginRight: '8px' }} />
+              <FaRegIdBadge style={{ marginRight: '8px' }} /> {/* Different icon */}
               {user.firstName} {user.lastName}
             </li>
-            <li>
-              <FaEnvelope style={{ marginRight: '8px' }} />
-              {user.email}
+            <li onClick={handleManageSpots}>
+              <button className="action-link">Manage Spots</button>
             </li>
+            <li onClick={handleManageReviews}>
+              <button className="action-link">Manage Reviews</button>
+          </li>
             <li onClick={logout}>
               <FaSignOutAlt style={{ marginRight: '8px' }} />
               Log Out
