@@ -10,8 +10,11 @@ function SpotDetail() {
   const { spotId } = useParams();
   const dispatch = useDispatch();
   const spot = useSelector((state) => state.spots[spotId]);
+  console.log("Spot Data:", spot);
+  console.log("Spot ID:", spotId);
 
   useEffect(() => {
+    console.log("Fetching spot by ID:", spotId);
     dispatch(fetchSpotById(spotId));
   }, [dispatch, spotId]);
 
@@ -25,19 +28,21 @@ function SpotDetail() {
       </h3>
 
       <div className="spot-images-container">
-        {spot.imageUrls && spot.imageUrls.length > 0 ? (
-          <>
-            <img src={spot.imageUrls[0]} alt="Spot Preview" className="preview-image" />
-            <div className="smaller-images">
-              {spot.imageUrls.slice(1).map((url, idx) => (
-                <img key={idx} src={url} alt={`Spot Image ${idx + 1}`} className="spot-image" />
-              ))}
-            </div>
-          </>
-        ) : (
-          <p>No images available</p>
-        )}
+      {/* Access the correct field: spot.SpotImages */}
+  {spot.SpotImages && spot.SpotImages.length > 0 ? (
+    <>
+      <img src={spot.SpotImages[0].url} alt="Spot Preview" className="preview-image" />
+      <div className="smaller-images">
+        {spot.SpotImages.slice(1).map((image, idx) => (
+          <img key={idx} src={image.url} alt={`Spot Image ${idx + 1}`} className="spot-image" />
+        ))}
       </div>
+    </>
+  ) : (
+    <p>No images available</p>
+  )}
+</div>
+
 
       <div className="description-price-container">
         <div className="description-container">
