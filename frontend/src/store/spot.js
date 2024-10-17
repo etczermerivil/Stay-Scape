@@ -5,6 +5,7 @@ const LOAD_SPOTS = 'spots/LOAD_SPOTS';
 const ADD_SPOT = 'spots/ADD_SPOT';
 const UPDATE_SPOT = 'spots/UPDATE_SPOT';
 const DELETE_SPOT = 'spots/DELETE_SPOT';
+const ADD_IMAGE = 'spot/add_image';
 
 // Action Creators
 const loadSpots = (spots) => ({
@@ -26,6 +27,13 @@ const deleteSpot = (spotId) => ({
   type: DELETE_SPOT,
   spotId,
 });
+
+const addImage = (image) => {
+  return {
+    type: ADD_IMAGE,
+    image
+  }
+}
 
 // Thunks for asynchronous actions
 export const fetchSpots = () => async (dispatch) => {
@@ -78,26 +86,32 @@ export const createSpot = (spot) => async (dispatch) => {
 
 
 
-export const postSpotImage = (image) => async () => {
+export const postSpotImage = (image) => async (dispatch) => {
   const { spotId, url, preview } = image;
 
-  const response = await csrfFetch(`/api/spots/${spotId}/images`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ url, preview }),
-  });
+  try {
+    const res = await csrfFetch(`/api/spots/${spotId}/images`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: { url, preview }, // Pass as a plain object
+    });
 
-  if (response.ok) {
-    const newImage = await response.json();
-    return newImage;
-  } else {
-    const errorData = await response.json();
+    if (!res.ok) throw res;
+
+    const data = await res.json();
+    dispatch(addImage(data)); // Ensure addImage updates your Redux store
+
+    return data;
+  } catch (error) {
+    const errorData = await error.json();
     console.error("Image Upload Error:", errorData);
-    return { errors: errorData.errors };
+    return { errors: errorData.errors || "An error occurred during the image upload." };
   }
 };
+
+
 
 export const editSpot = (spot) => async (dispatch) => {
   const response = await csrfFetch(`/api/spots/${spot.id}`, {

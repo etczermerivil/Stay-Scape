@@ -1,0 +1,120 @@
+.spot-details-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #28282B;
+}
+
+/* Spot title and location */
+.spot-title {
+  font-size: 2.5em;
+  text-align: left;
+  margin: 0;
+}
+
+.spot-location {
+  font-size: 1.2em;
+  color: #808080;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+/* Image grid */
+.spot-images-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.preview-image {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.smaller-images {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.spot-image {
+  width: 150px;
+  height: auto;
+  border-radius: 5px;
+}
+
+/* Description and Price container */
+.description-price-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+.description-container {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.spot-description {
+  color: #28282B;
+}
+
+/* Price box with border */
+.price-container {
+  flex: 0 0 250px;
+  text-align: center;
+  border: 1px solid #808080;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.price-details {
+  font-size: 1.2em;
+  color: #28282B;
+  margin-bottom: 15px;
+}
+
+.reserve-button {
+  background-color: #28282B;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reserve-button:hover {
+  background-color: #808080;
+}
+
+/* Reviews container */
+.reviews-container {
+  margin-top: 20px;
+}
+
+.review-card {
+  background-color: #FFA64D;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.reviewer-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.review-date {
+  color: #808080;
+  margin-bottom: 5px;
+}
+
+.review-text {
+  color: #28282B;
+}

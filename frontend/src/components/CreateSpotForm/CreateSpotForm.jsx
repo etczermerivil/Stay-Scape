@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector} from 'react-redux';
 import { createSpot } from '../../store/spot';
 import { useNavigate } from 'react-router-dom';
+import { csrfFetch } from '../../store/csrf';
 
 import './CreateSpotForm.css';
 
@@ -20,6 +21,7 @@ function CreateSpotForm() {
   const [imageUrls, setImageUrls] = useState(['', '', '', '', '']);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const sessionUser = useSelector((state) => state.session.user);
 
   const handleImageUrlChange = (index, value) => {
     const updatedUrls = [...imageUrls];
@@ -27,21 +29,25 @@ function CreateSpotForm() {
     setImageUrls(updatedUrls);
   };
 
+  console.log("Session User:", sessionUser);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if the user is logged in
+    if (!sessionUser) {
+      console.error("User must be logged in to create a spot.");
+      setErrors({ user: "You must be logged in to create a spot." });
+      return;
+    }
 
     // Prevent submission if already submitting
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    // Explicitly parse lat and lng as numbers
     const parsedLat = parseFloat(lat);
     const parsedLng = parseFloat(lng);
 
-    console.log("Parsed Latitude:", parsedLat);
-    console.log("Parsed Longitude:", parsedLng);
-
-    // Check if lat or lng are NaN and stop here if they are
     if (isNaN(parsedLat) || isNaN(parsedLng)) {
       setErrors({
         lat: isNaN(parsedLat) ? 'Latitude must be a valid number' : undefined,
@@ -51,7 +57,6 @@ function CreateSpotForm() {
       return;
     }
 
-    // Build the newSpot object with all properties
     const newSpot = {
       address,
       city,
@@ -64,20 +69,30 @@ function CreateSpotForm() {
       price: parseFloat(price),
     };
 
-    console.log("New Spot Data:", newSpot);
-
     try {
       const createdSpot = await dispatch(createSpot(newSpot));
       if (createdSpot && createdSpot.id) {
-        // Use navigate instead of history.push
+        for (const url of imageUrls) {
+          if (url) {
+            console.log(`Uploading image: ${url} for spotId: ${createdSpot.id}`);
+            await csrfFetch(`/api/spots/${createdSpot.id}/images`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: { url, preview: true },
+            });
+          }
+        }
         navigate(`/spots/${createdSpot.id}`);
       }
     } catch (error) {
-      console.error("Error creating spot:", error);
+      console.error("Error creating spot or uploading images:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
 
 
