@@ -438,102 +438,128 @@ router.post('/', requireAuth, async (req, res) => {
 
 
 
-
 // PUT edit a spot (authentication and authorization required)
 router.put('/:spotId', requireAuth, async (req, res) => {
   const { spotId } = req.params;
 
-  // Find the spot by its id
-  const spot = await Spot.findByPk(spotId);
-
-  // If the spot is not found, return a 404 error
-  if (!spot) {
-    return res.status(404).json({ message: "Spot couldn't be found" });
-  }
-
-  // Check if the current user owns the spot
-  if (spot.ownerId !== req.user.id) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
-  const { address, city, state, country, lat, lng, name, description, price } = req.body;
-
-  // Validation errors object
-  let errors = {};
-
-  // Required fields validation
-  if (!address) errors.address = "Street address is required";
-  if (!city) errors.city = "City is required";
-  if (!state) errors.state = "State is required";
-  if (!country) errors.country = "Country is required";
-
-  // Latitude validation (must be between -90 and 90)
-  if (lat === undefined || lat < -90 || lat > 90) {
-    errors.lat = "Latitude must be within -90 and 90";
-  }
-
-  // Longitude validation (must be between -180 and 180)
-  if (lng === undefined || lng < -180 || lng > 180) {
-    errors.lng = "Longitude must be within -180 and 180";
-  }
-
-  // Name validation (must be less than 50 characters)
-  if (!name || name.length > 50) {
-    errors.name = "Name must be less than 50 characters";
-  }
-
-  // Description validation (must not be empty)
-  if (!description) {
-    errors.description = "Description is required";
-  }
-
-  // Price validation (must be a positive number)
-  if (price === undefined || price <= 0) {
-    errors.price = "Price per day must be a positive number";
-  }
-
-  // If there are validation errors, return a 400 response with the errors
-  if (Object.keys(errors).length > 0) {
-    return res.status(400).json({
-      message: "Validation Error",
-      errors
+  try {
+    // Find the spot by its id, including SpotImages to retrieve the preview image
+    const spot = await Spot.findByPk(spotId, {
+      include: {
+        model: SpotImage,
+        as: 'SpotImages', // Alias must match your model definition
+        where: { preview: true },  // Only get the preview image
+        required: false  // Allow it to return even if there are no images
+      }
     });
+
+    // If the spot is not found, return a 404 error
+    if (!spot) {
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+
+    // Check if the current user owns the spot
+    if (spot.ownerId !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const { address, city, state, country, lat, lng, name, description, price } = req.body;
+
+    // Validation errors object
+    let errors = {};
+
+    // Required fields validation
+    if (!address) errors.address = "Street address is required";
+    if (!city) errors.city = "City is required";
+    if (!state) errors.state = "State is required";
+    if (!country) errors.country = "Country is required";
+
+    // Latitude validation (must be between -90 and 90)
+    if (lat === undefined || lat < -90 || lat > 90) {
+      errors.lat = "Latitude must be within -90 and 90";
+    }
+
+    // Longitude validation (must be between -180 and 180)
+    if (lng === undefined || lng < -180 || lng > 180) {
+      errors.lng = "Longitude must be within -180 and 180";
+    }
+
+    // Name validation (must be less than 50 characters)
+    if (!name || name.length > 50) {
+      errors.name = "Name must be less than 50 characters";
+    }
+
+    // Description validation (must not be empty)
+    if (!description) {
+      errors.description = "Description is required";
+    }
+
+    // Price validation (must be a positive number)
+    if (price === undefined || price <= 0) {
+      errors.price = "Price per day must be a positive number";
+    }
+
+    // If there are validation errors, return a 400 response with the errors
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({
+        message: "Validation Error",
+        errors
+      });
+    }
+
+    // Update the spot after successful validation
+    await spot.update({
+      address,
+      city,
+      state,
+      country,
+      lat,
+      lng,
+      name,
+      description,
+      price
+    });
+
+    // Get the preview image URL from the SpotImages association
+    const previewImage = spot.SpotImages && spot.SpotImages.length > 0 ? spot.SpotImages[0].url : null;
+
+    // Return the updated spot including the previewImage
+    return res.status(200).json({
+      id: spot.id,
+      ownerId: spot.ownerId,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: spot.lat,
+      lng: spot.lng,
+      name: spot.name,
+      description: spot.description,
+      price: spot.price,
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt,
+      previewImage  // Add the previewImage to the response
+    });
+  } catch (error) {
+    console.error("Error updating spot:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
-
-  // Update the spot after successful validation
-  await spot.update({
-    address,
-    city,
-    state,
-    country,
-    lat,
-    lng,
-    name,
-    description,
-    price
-  });
-
-  // Return the updated spot
-  return res.status(200).json({
-    id: spot.id,
-    ownerId: spot.ownerId,
-    address: spot.address,
-    city: spot.city,
-    state: spot.state,
-    country: spot.country,
-    lat: spot.lat,
-    lng: spot.lng,
-    name: spot.name,
-    description: spot.description,
-    price: spot.price,
-    createdAt: spot.createdAt,
-    updatedAt: spot.updatedAt
-  });
 });
+
 
 // DELETE a spot (authentication and authorization required)
 router.delete('/:spotId', requireAuth, async (req, res) => {
   const { spotId } = req.params;
+
+
+  const spot = await Spot.findByPk(spotId, {
+    include: {
+      model: SpotImage,
+      as: 'SpotImages', // Alias must match your model definition
+      where: { preview: true },  // Only get the preview image
+      required: false  // Allow it to return even if there are no images
+    }
+  });
 
   try {
     // Find the spot by ID

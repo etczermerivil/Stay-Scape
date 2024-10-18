@@ -19,7 +19,7 @@ const addSpot = (spot) => ({
   spot,
 });
 
-const updateSpot = (spot) => ({
+const updateSpotAction = (spot) => ({
   type: UPDATE_SPOT,
   spot,
 });
@@ -119,12 +119,12 @@ export const editSpot = (spot) => async (dispatch) => {
   const response = await csrfFetch(`/api/spots/${spot.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(spot),
+    body: spot,  // Pass as plain object instead of stringifying
   });
 
   if (response.ok) {
     const updatedSpot = await response.json();
-    dispatch(updateSpot(updatedSpot));
+    dispatch(updateSpotAction(updatedSpot));  // Dispatch the action to update the store
     return updatedSpot;
   } else {
     const errorData = await response.json();
@@ -132,6 +132,7 @@ export const editSpot = (spot) => async (dispatch) => {
     return { errors: errorData.errors };
   }
 };
+
 
 export const fetchSpotById = (spotId) => async (dispatch) => {
   const response = await csrfFetch(`/api/spots/${spotId}`);
@@ -174,6 +175,29 @@ export const getCurrentUserSpots = () => async (dispatch) => {
     });
   }
 };
+
+export const updateSpotThunk = (updatedSpot) => async (dispatch) => {
+  const response = await csrfFetch(`/api/spots/${updatedSpot.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: updatedSpot,
+  });
+
+  if (response.ok) {
+    const spot = await response.json(); // This now includes previewImage
+    console.log('Updated spot:', spot); // Log to check previewImage
+    dispatch(updateSpotAction(spot));  // Dispatch the action to update the store
+    return spot;
+  } else {
+    const error = await response.json();
+    console.error('Error updating spot:', error);
+  }
+};
+
+
+
 
 
 
