@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+
 
 const EditSpotModal = ({ spot, closeModal }) => {
   const [formData, setFormData] = useState({ ...spot });

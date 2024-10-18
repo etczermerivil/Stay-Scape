@@ -2,7 +2,7 @@ import { csrfFetch } from './csrf';
 
 // Action Types
 const LOAD_SPOTS = 'spots/LOAD_SPOTS';
-const LOAD_USER_SPOTS = 'spots/LOAD_USER_SPOTS';
+const SET_USER_SPOTS = 'spots/SET_USER_SPOTS';
 const ADD_SPOT = 'spots/ADD_SPOT';
 const UPDATE_SPOT = 'spots/UPDATE_SPOT';
 const DELETE_SPOT = 'spots/DELETE_SPOT';
@@ -35,6 +35,20 @@ const addImage = (image) => {
     image
   }
 }
+
+export const getCurrentUserSpots = () => async (dispatch) => {
+  const response = await csrfFetch('/api/spots/current');  // Ensure this is the correct API route
+  if (response.ok) {
+    const data = await response.json();
+    dispatch({
+      type: 'SET_USER_SPOTS',
+      spots: data.spots,  // Assuming data.spots is an array of user spots
+    });
+  } else {
+    console.error("Failed to fetch user spots");
+  }
+};
+
 
 // Thunks for asynchronous actions
 export const fetchSpots = () => async (dispatch) => {
@@ -174,7 +188,7 @@ export default function spotReducer(state = initialState, action) {
       return newState;
     }
 
-    case LOAD_USER_SPOTS: {  // New case for loading user's spots
+    case SET_USER_SPOTS: {  // New case for loading user's spots
       const newState = { ...state, UserSpots: {} };  // Clear user's spots first
       action.spots.forEach((spot) => {
         newState.UserSpots[spot.id] = spot;  // Load user-specific spots
