@@ -1,26 +1,32 @@
 import { useDispatch } from "react-redux";
-import { removeSpot } from "../../store/spot";  // Import the removeSpot action to handle deletion
+import { removeSpot } from '../../store/spot';
+import useModal from '../../context/useModal';
+import { getCurrentUserSpots } from "../../store/spot";
 
-const DeleteSpotModal = ({ spot, closeModal }) => {
+const DeleteSpotModal = ({ spotId }) => {
   const dispatch = useDispatch();
+  const { closeModal } = useModal();  // Use custom modal hook
 
   const handleDelete = async () => {
-    try {
-      // Dispatch the removeSpot action with the spot ID
-      await dispatch(removeSpot(spot.id));
-      closeModal();  // Close the modal after successful deletion
-    } catch (error) {
-      console.error("Error deleting spot:", error);
-    }
+    console.log("Deleting spot with ID:", spotId);
+
+    await dispatch(removeSpot(spotId));  // Dispatch the action to delete the spot
+    await dispatch(getCurrentUserSpots());
+    closeModal();  // Close the modal after deleting the spot
   };
 
+  // const handleDelete = async () => {
+  //   console.log("Deleting spot with ID:", spotId);  // Add this log to check the spotId
+  //   await dispatch(removeSpot(spotId));  // Dispatch the action to delete the spot
+  //   navigate('/manage-spots');
+  // };
+
   return (
-    <div className="modal">
+    <div className="delete-modal">
       <h2>Confirm Delete</h2>
-      {/* Escape quotes and dynamically display the spot name */}
-      <p>Are you sure you want to delete the spot &quot;{spot.name}&quot;?</p>
+      <p>Are you sure you want to delete this spot?</p>
       <button onClick={handleDelete}>Yes</button>
-      <button onClick={closeModal}>No</button>
+      <button onClick={closeModal}>No</button>  {/* Close modal */}
     </div>
   );
 };

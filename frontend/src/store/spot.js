@@ -151,12 +151,14 @@ export const removeSpot = (spotId) => async (dispatch) => {
   });
 
   if (response.ok) {
-    dispatch(deleteSpot(spotId));
+    dispatch(deleteSpot(spotId));  // Update the store
   } else {
     const errorData = await response.json();
     console.error("Error deleting spot:", errorData);
   }
 };
+
+
 
 export const getCurrentUserSpots = () => async (dispatch) => {
   const response = await csrfFetch(`/api/spots/current`);
@@ -241,6 +243,7 @@ export default function spotReducer(state = initialState, action) {
       delete newState.UserSpots[action.spotId];  // Delete from user's spots
       return newState;
     }
+
 
     case ADD_IMAGE: {
       const spot = state.Spots[action.image.spotId];

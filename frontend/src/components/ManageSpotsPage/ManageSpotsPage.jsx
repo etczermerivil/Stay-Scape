@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import OpenModalButton from '../OpenModalButton';
 import UpdateSpotButton from "./UpdateSpotButton";
@@ -9,6 +10,7 @@ import './ManageSpotsPage.css';
 
 const ManageSpotsPage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const userSpots = useSelector((state) => state.spots.UserSpots);
     console.log(userSpots);
 
@@ -56,10 +58,11 @@ console.log("Using previewImage:", previewImage);  // For debugging
       <div className="spot-actions">
         <UpdateSpotButton spot={spot} />  {/* Button to trigger edit */}
         <OpenModalButton
-          buttonText="Delete"
-          buttonClassName="delete-button"
-          modalComponent={<DeleteSpotModal spotId={spot.id} />}  // Modal to confirm deletion
+            buttonText="Delete"
+            buttonClassName="delete-button"
+            modalComponent={<DeleteSpotModal spotId={spot.id} navigate={navigate} />}  // Pass the navigate function as a prop
         />
+
       </div>
     </div>
   );
