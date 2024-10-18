@@ -9,7 +9,8 @@ import './ManageSpotsPage.css';
 
 const ManageSpotsPage = () => {
     const dispatch = useDispatch();
-    const userSpots = useSelector((state) => state.spots.UserSpots);  // Ensure UserSpots exists in your state
+    const userSpots = useSelector((state) => state.spots.UserSpots);
+    console.log(userSpots);
 
     console.log("User spots data:", userSpots);
 
@@ -30,7 +31,16 @@ return (
     <div className="all-spots-container">
 
     {Object.values(userSpots).map((spot) => {
-  const previewImage = spot.SpotImages.length > 0 ? spot.SpotImages[0].url : "path_to_placeholder_image.jpg";  // Check for the first image
+
+//   const previewImage = spot.SpotImages && Array.isArray(spot.SpotImages) && spot.SpotImages.length > 0
+//   ? spot.SpotImages[0].url
+//   : "path_to_placeholder_image.jpg";  // Use placeholder if no images exist
+
+  const previewImage = spot.previewImage  // Now using previewImage directly
+  ? spot.previewImage
+  : "path_to_placeholder_image.jpg";  // Fallback to a placeholder if no image exists
+
+console.log("Using previewImage:", previewImage);  // For debugging
 
   return (
     <div key={spot.id} className="spot-card">

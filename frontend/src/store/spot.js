@@ -36,19 +36,6 @@ const addImage = (image) => {
   }
 }
 
-export const getCurrentUserSpots = () => async (dispatch) => {
-  const response = await csrfFetch('/api/spots/current');  // Ensure this is the correct API route
-  if (response.ok) {
-    const data = await response.json();
-    dispatch({
-      type: 'SET_USER_SPOTS',
-      spots: data.spots,  // Assuming data.spots is an array of user spots
-    });
-  } else {
-    console.error("Failed to fetch user spots");
-  }
-};
-
 
 // Thunks for asynchronous actions
 export const fetchSpots = () => async (dispatch) => {
@@ -171,6 +158,23 @@ export const removeSpot = (spotId) => async (dispatch) => {
   }
 };
 
+export const getCurrentUserSpots = () => async (dispatch) => {
+  const response = await csrfFetch(`/api/spots/current`);
+
+  if (response.ok) {
+    const data = await response.json();
+    console.log("Fetched user spots data:", data);
+
+    // Correctly dispatch data.Spots (capital 'S') instead of data.spots
+    dispatch({
+      type: SET_USER_SPOTS,
+      spots: data.Spots || [],  // Make sure we're using data.Spots
+    });
+  }
+};
+
+
+
 // Initial State
 const initialState = {
   Spots: {},
@@ -188,11 +192,18 @@ export default function spotReducer(state = initialState, action) {
       return newState;
     }
 
-    case SET_USER_SPOTS: {  // New case for loading user's spots
-      const newState = { ...state, UserSpots: {} };  // Clear user's spots first
-      action.spots.forEach((spot) => {
-        newState.UserSpots[spot.id] = spot;  // Load user-specific spots
-      });
+    case SET_USER_SPOTS: {
+      const newState = { ...state, UserSpots: {} };
+
+      // Ensure action.spots is an array before using forEach
+      if (Array.isArray(action.spots) && action.spots.length > 0) {
+        action.spots.forEach((spot) => {
+          newState.UserSpots[spot.id] = spot;
+        });
+      } else {
+        console.log("action.spots is either undefined or empty:", action.spots);
+      }
+
       return newState;
     }
 
