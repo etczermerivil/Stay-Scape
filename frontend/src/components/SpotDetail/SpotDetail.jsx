@@ -9,9 +9,10 @@ import { LuDot } from 'react-icons/lu';
 function SpotDetail() {
   const { spotId } = useParams();
   const dispatch = useDispatch();
-  const spot = useSelector((state) => state.spots[spotId]);
-  console.log("Spot Data:", spot);
-  console.log("Spot ID:", spotId);
+  const spot = useSelector((state) => state.spots.Spots[spotId]);
+
+  const state = useSelector((state) => state);
+  console.log('Redux State:', state);
 
   useEffect(() => {
     console.log("Fetching spot by ID:", spotId);

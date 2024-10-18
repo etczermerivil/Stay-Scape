@@ -2,10 +2,11 @@ import { csrfFetch } from './csrf';
 
 // Action Types
 const LOAD_SPOTS = 'spots/LOAD_SPOTS';
+const LOAD_USER_SPOTS = 'spots/LOAD_USER_SPOTS';
 const ADD_SPOT = 'spots/ADD_SPOT';
 const UPDATE_SPOT = 'spots/UPDATE_SPOT';
 const DELETE_SPOT = 'spots/DELETE_SPOT';
-const ADD_IMAGE = 'spot/add_image';
+const ADD_IMAGE = 'spots/ADD_IMAGE';
 
 // Action Creators
 const loadSpots = (spots) => ({
@@ -157,35 +158,81 @@ export const removeSpot = (spotId) => async (dispatch) => {
 };
 
 // Initial State
-const initialState = {};
+const initialState = {
+  Spots: {},
+  UserSpots: {},
+};
 
 // Reducer
 export default function spotReducer(state = initialState, action) {
   switch (action.type) {
     case LOAD_SPOTS: {
-      const newState = {};
+      const newState = { ...state, Spots: {} };
       action.spots.forEach((spot) => {
-        newState[spot.id] = spot;
+        newState.Spots[spot.id] = spot;
       });
       return newState;
     }
+
+    case LOAD_USER_SPOTS: {  // New case for loading user's spots
+      const newState = { ...state, UserSpots: {} };  // Clear user's spots first
+      action.spots.forEach((spot) => {
+        newState.UserSpots[spot.id] = spot;  // Load user-specific spots
+      });
+      return newState;
+    }
+
     case ADD_SPOT: {
       return {
         ...state,
-        [action.spot.id]: action.spot,
+        Spots: {
+          ...state.Spots,
+          [action.spot.id]: action.spot,  // Add spot to global spots
+        },
+        UserSpots: {
+          ...state.UserSpots,
+          [action.spot.id]: action.spot,  // Add to user's spots as well
+        },
       };
     }
+
     case UPDATE_SPOT: {
       return {
         ...state,
-        [action.spot.id]: action.spot,
+        Spots: {
+          ...state.Spots,
+          [action.spot.id]: action.spot,  // Update spot globally
+        },
+        UserSpots: {
+          ...state.UserSpots,
+          [action.spot.id]: action.spot,  // Update user-specific spot
+        },
       };
     }
+
     case DELETE_SPOT: {
       const newState = { ...state };
-      delete newState[action.spotId];
+      delete newState.Spots[action.spotId];  // Delete globally
+      delete newState.UserSpots[action.spotId];  // Delete from user's spots
       return newState;
     }
+
+    case ADD_IMAGE: {
+      const spot = state.Spots[action.image.spotId];
+      if (!spot) return state;  // If the spot doesn't exist, return the current state
+
+      return {
+        ...state,
+        Spots: {
+          ...state.Spots,
+          [action.image.spotId]: {
+            ...spot,
+            images: [...(spot.images || []), action.image],  // Add image to spot's images
+          },
+        },
+      };
+    }
+
     default:
       return state;
   }
