@@ -78,7 +78,6 @@ router.get('/current', requireAuth, async (req, res) => {
 
 
 
-// GET details of a spot by its id (no authentication required)
 router.get('/:spotId', async (req, res) => {
   const { spotId } = req.params;
 
@@ -126,6 +125,7 @@ router.get('/:spotId', async (req, res) => {
     return res.status(404).json({ message: "Spot couldn't be found" });
   }
 
+  // Calculate the average star rating and number of reviews
   const avgRating = await Review.findOne({
     where: { spotId: spot.id },
     attributes: [[sequelize.fn('AVG', sequelize.col('stars')), 'avgStarRating']],
@@ -134,8 +134,10 @@ router.get('/:spotId', async (req, res) => {
 
   const numReviews = await Review.count({ where: { spotId: spot.id } });
 
-  const avgStarRating = avgRating.avgStarRating ? parseFloat(avgRating.avgStarRating).toFixed(1) : null;
+  // Ensure that avgStarRating is a float and rounded to one decimal, or return 'New'
+  const avgStarRating = avgRating.avgStarRating ? parseFloat(avgRating.avgStarRating).toFixed(1) : 'New';
 
+  // Return the spot details, including the calculated avgStarRating and numReviews
   return res.status(200).json({
     id: spot.id,
     ownerId: spot.ownerId,
@@ -151,7 +153,7 @@ router.get('/:spotId', async (req, res) => {
     createdAt: spot.createdAt,  // Return createdAt in response
     updatedAt: spot.updatedAt,  // Return updatedAt in response
     numReviews,
-    avgStarRating: avgRating.avgStarRating || null,
+    avgStarRating,  // Return the calculated average star rating or 'New'
     SpotImages: spot.SpotImages,
     Owner: {
       id: spot.Owner.id,
@@ -160,6 +162,7 @@ router.get('/:spotId', async (req, res) => {
     }
   });
 });
+
 
 
 

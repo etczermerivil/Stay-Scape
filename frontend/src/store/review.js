@@ -47,24 +47,6 @@ export const fetchReviews = (spotId) => async (dispatch) => {
   }
 };
 
-// Thunk to add a review (no need for JSON.stringify)
-// export const addReview = (reviewData) => async (dispatch) => {
-//   const res = await csrfFetch(`/api/spots/${reviewData.spotId}/reviews`, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify(reviewData), // Stringify the body correctly for the POST request
-//   });
-
-//   if (res.ok) {
-//     const review = await res.json();
-//     dispatch(addReviewAction(review)); // Dispatch action to add review
-//   } else {
-//     const errorData = await res.json();
-//     console.error("Error adding review:", errorData);
-//   }
-// };
 
 export const addReview = (reviewData) => async (dispatch) => {
     const res = await csrfFetch(`/api/spots/${reviewData.spotId}/reviews`, {
@@ -72,7 +54,7 @@ export const addReview = (reviewData) => async (dispatch) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: reviewData, // Pass plain object directly
+      body: reviewData, // Passing the plain object directly, no stringify
     });
 
     if (res.ok) {
@@ -83,6 +65,7 @@ export const addReview = (reviewData) => async (dispatch) => {
       console.error("Error adding review:", errorData);
     }
   };
+
 
 // Reducer function
 export default function reviewReducer(state = initialState, action) {

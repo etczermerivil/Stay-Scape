@@ -151,7 +151,6 @@ router.post('/', requireAuth, async (req, res) => {
   if (!review) errors.review = 'Review text is required';
   if (!stars || stars < 1 || stars > 5) errors.stars = 'Stars must be an integer from 1 to 5';
 
-  // If there are validation errors, return a 400 status with the error details
   if (Object.keys(errors).length > 0) {
     return res.status(400).json({
       message: 'Validation Error',
@@ -167,6 +166,16 @@ router.post('/', requireAuth, async (req, res) => {
     stars,
   });
 
+  // Recalculate the spot's avgRating
+  const allReviews = await Review.findAll({
+    where: { spotId },
+  });
+
+  const avgRating = allReviews.reduce((acc, curr) => acc + curr.stars, 0) / allReviews.length;
+
+  // Update spot's avgRating
+  await spot.update({ avgRating });
+
   return res.status(201).json({
     id: newReview.id,
     userId: newReview.userId,
@@ -174,9 +183,11 @@ router.post('/', requireAuth, async (req, res) => {
     review: newReview.review,
     stars: newReview.stars,
     createdAt: newReview.createdAt,
-    updatedAt: newReview.updatedAt
+    updatedAt: newReview.updatedAt,
+    avgRating, // Include the new avgRating in the response
   });
 });
+
 
 
 

@@ -38,13 +38,34 @@ const addImage = (image) => {
 
 
 // Thunks for asynchronous actions
+// export const fetchSpots = () => async (dispatch) => {
+//   const response = await fetch('/api/spots');
+//   if (response.ok) {
+//     const data = await response.json();
+//     dispatch(loadSpots(data.spots));
+//   }
+// };
+
 export const fetchSpots = () => async (dispatch) => {
   const response = await fetch('/api/spots');
   if (response.ok) {
     const data = await response.json();
-    dispatch(loadSpots(data.spots));
+
+    // Log the data to verify
+    console.log("Fetched spots data:", data);
+
+    // Ensure that the correct path is accessed (data.Spots)
+    if (Array.isArray(data.Spots)) {
+      dispatch(loadSpots(data.Spots)); // Dispatch the correct array of spots
+    } else {
+      console.error("Spots data is not in the expected array format:", data.Spots);
+    }
+  } else {
+    console.error("Failed to fetch spots");
   }
 };
+
+
 
 // store/spot.js
 export const createSpot = (spot) => async (dispatch) => {
@@ -217,6 +238,7 @@ export default function spotReducer(state = initialState, action) {
       });
       return newState;
     }
+
 
     case SET_USER_SPOTS: {
       const newState = { ...state, UserSpots: {} };
