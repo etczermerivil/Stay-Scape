@@ -23,7 +23,7 @@
   .spot-image {
     width: 100%; /* Maintain full width of the container */
     height: 200px; /* Set a fixed height for all images */
-    object-fit: cover; /* Ensure the image covers the entire area, cropping if necessary */
+    object-fit: cover;
     border-radius: 8px;
     position: relative;
     z-index: 1;

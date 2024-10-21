@@ -217,11 +217,6 @@ export const updateSpotThunk = (updatedSpot) => async (dispatch) => {
   }
 };
 
-
-
-
-
-
 // Initial State
 const initialState = {
   Spots: {},
