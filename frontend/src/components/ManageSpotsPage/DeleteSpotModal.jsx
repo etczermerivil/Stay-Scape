@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { removeSpot } from '../../store/spot';
+import { removeSpot, fetchSpots } from '../../store/spot';
 import useModal from '../../context/useModal';
 import { getCurrentUserSpots } from "../../store/spot";
 
@@ -10,9 +10,10 @@ const DeleteSpotModal = ({ spotId }) => {
   const handleDelete = async () => {
     console.log("Deleting spot with ID:", spotId);
 
-    await dispatch(removeSpot(spotId));  // Dispatch the action to delete the spot
+    await dispatch(removeSpot(spotId));
     await dispatch(getCurrentUserSpots());
-    closeModal();  // Close the modal after deleting the spot
+    await dispatch(fetchSpots());
+    closeModal();
   };
 
   // const handleDelete = async () => {

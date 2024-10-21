@@ -21,13 +21,14 @@
 
   /* Ensure image has a fixed size */
   .spot-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+    width: 100%; /* Maintain full width of the container */
+    height: 200px; /* Set a fixed height for all images */
+    object-fit: cover; /* Ensure the image covers the entire area, cropping if necessary */
     border-radius: 8px;
-    position: relative; /* Make the image container relative */
+    position: relative;
     z-index: 1;
   }
+
 
 
   /* Hidden spot name on hover */
@@ -39,7 +40,7 @@
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     position: absolute;
-    top: 60%; /* Position it vertically at 50% */
+    top: 58%; /* Position it vertically at 50% */
     left: 50%; /* Position it horizontally at 50% */
     transform: translate(-50%, -50%); /* Center the text perfectly */
     z-index: 2;
@@ -50,7 +51,7 @@
   }
 
   /* Price aligned to the left */
-  .spot-price {
+  .spot-price p {
     text-align: left;
     font-size: 18px;
     font-weight: bold;
