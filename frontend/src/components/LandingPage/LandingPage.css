@@ -1,95 +1,101 @@
-.landing-page-container,
-.manage-spots-page-container {
-  margin: 0 auto;
-  padding: 20px;
-  max-width: 1200px;  /* Limit container width for better layout */
-}
-
+/* Container for the spots - responsive grid */
 .all-spots-container {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Four spots per row */
-  grid-gap: 20px; /* Add space between each card */
-  justify-items: center; /* Center items within grid cells */
-}
-
-.spot-card {
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 15px;
-  max-width: 300px; /* Limit max width to ensure uniformity */
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s ease-in-out;
-}
-
-.spot-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.spot-image {
-  width: 100%;
-  height: 200px;  /* Fixed height for consistent image sizing */
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.spot-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Four spots per row */
+    grid-gap: 20px; /* Space between the spot cards */
+    justify-items: center; /* Center items within each grid cell */
   }
 
-.rating-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 5px;
-  font-size: 16px;
-  color: #555;
-}
+  /* Spot card styling remains the same */
+  .spot-card {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease-in-out;
+    position: relative; /* Positioning needed for hover effect */
+  }
 
-/* Optional: Add a star icon next to rating */
-.rating-section:before {
-  content: '★';  /* Star icon */
-  margin-right: 5px;
-  color: #f8d64e; /* Gold star color */
-}
+  /* Ensure image has a fixed size */
+  .spot-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    position: relative; /* Make the image container relative */
+    z-index: 1;
+  }
 
-.spot-info h2 {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 10px 0;
-}
 
-.spot-info p {
-  font-size: 16px;
-  color: #888;
-  margin: 5px 0;
-}
+  /* Hidden spot name on hover */
+  .spot-card h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    position: absolute;
+    top: 60%; /* Position it vertically at 50% */
+    left: 50%; /* Position it horizontally at 50% */
+    transform: translate(-50%, -50%); /* Center the text perfectly */
+    z-index: 2;
+  }
 
-/* .spot-info p.price {
-  font-size: 18px;
-  color: #000;
-  font-weight: bold;
-} */
+  .spot-card:hover h2 {
+    opacity: 1; /* Show the name on hover */
+  }
 
-.spot-price {
-    text-align: right;
+  /* Price aligned to the left */
+  .spot-price {
+    text-align: left;
     font-size: 18px;
     font-weight: bold;
     margin-top: 8px;
-    color: #333;
+    color: #2b2b2b !important; /* Add !important to ensure black color */
   }
 
-  .spot-location {
+  /* City, State styling */
+/* Add spacing between the city/state and the image */
+.spot-location {
     font-size: 16px;
-    color: #333;
+    color: #2b2b2b;
+    margin-top: 10px; /* Add space between the image and location text */
   }
 
+
+  /* Rating styling */
   .spot-rating {
     display: flex;
     align-items: center;
     font-size: 16px;
+    color: #2b2b2b;
+  }
+
+  .spot-info {
+    display: flex;
+    justify-content: space-between; /* Aligns content to the corners */
+    align-items: center;
+    margin-top: 5px; /* Add some space between the name and the image */
+  }
+
+  @media (max-width: 1200px) {
+    .all-spots-container {
+      grid-template-columns: repeat(3, 1fr); /* Three spots per row */
+    }
+  }
+
+  @media (max-width: 900px) {
+    .all-spots-container {
+      grid-template-columns: repeat(2, 1fr); /* Two spots per row */
+    }
+  }
+
+  @media (max-width: 600px) {
+    .all-spots-container {
+      grid-template-columns: 1fr; /* One spot per row */
+    }
   }
