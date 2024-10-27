@@ -80,9 +80,9 @@ font-size: 14px ;
 }
 
 .profileDropdown:hover{
-  /* border: 1.5px solid rgba(213, 43, 30, 0.5); */
+  border: 1px solid rgba(213, 42, 30, 0.775);
   /* border: 1.5px solid rgba(83, 64, 255, 0.9); */
-  border: 1px solid rgba(243, 243, 243, 0.3);
+  /* border: 1px solid rgba(243, 243, 243, 0.3); */
 }
 
 .profileDropdown button {
@@ -135,7 +135,7 @@ font-size: 14px ;
 
 .profileDropdown li svg {
   margin-right: 0;
-  color: #F3F3F3; /* Ensure the icon matches the text color */
+  color: #F3F3F3;
 }
 
 .profileDropdown li button {
@@ -192,13 +192,13 @@ font-size: 14px ;
 }
 
 .userText {
-  margin: 0; /* Make sure there's no extra margin */
-  padding: 0; /* Reset padding inside userText */
+  margin: 0;
+  padding: 0;
 
 }
 
 .userName, .helloText {
-  margin: 0; /* Ensure no margin on these elements */
+  margin: 0;
   padding: 0;
 }
 
@@ -210,11 +210,11 @@ font-size: 14px ;
 }
 
 .userText span.userName {
-  color: #D52B1E; /* Red for the username */
-  font-weight: 700; /* Bold for emphasis */
+  color: #D52B1E;
+  font-weight: 700;
   font-size: 18px;
-  display: inline; /* Ensures inline display */
-  white-space: nowrap; /* Prevents text from breaking into new lines */
+  display: inline;
+  white-space: nowrap;
 }
 
 .userInfo span:last-child {
