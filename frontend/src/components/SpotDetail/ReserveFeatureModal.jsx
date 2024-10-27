@@ -1,11 +1,11 @@
 import useModal from '../../context/useModal';
-import styles from './ReserveFeatureModal.module.css';  // Import the CSS Module
+import styles from './ReserveFeatureModal.module.css';
 
 function ReserveModal() {
-  const { closeModal } = useModal();  // Get the closeModal function
+  const { closeModal } = useModal();
 
   const handleBackgroundClick = (e) => {
-    // Ensure we only close the modal if the user clicks on the background, not the modal content itself
+    // Ensure closing if the user clicks on the background.
     if (e.target.classList.contains(styles.modalBackground)) {
       closeModal();
     }

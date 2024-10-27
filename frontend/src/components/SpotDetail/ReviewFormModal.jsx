@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addReview } from '../../store/review';
-import useModal from '../../context/useModal'; // Import useModal
-import styles from './ReviewFormModal.module.css'; // Import CSS module
+import useModal from '../../context/useModal';
+import styles from './ReviewFormModal.module.css';
 
 function ReviewFormModal({ spotId, onReviewSubmit }) {
   const [reviewText, setReviewText] = useState('');
   const [stars, setStars] = useState(0);
   const dispatch = useDispatch();
-  const { closeModal } = useModal(); // Use closeModal from the modal context
+  const { closeModal } = useModal();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(addReview({ review: reviewText, stars, spotId: Number(spotId) }))
       .then(() => {
-        onReviewSubmit(); // Trigger re-fetch of reviews in SpotDetail
-        closeModal();     // Close the modal after submitting the review
+        onReviewSubmit();
+        closeModal();
       });
   };
 

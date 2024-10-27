@@ -66,10 +66,9 @@
 .descriptionPriceContainer {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Align top edges */
+  align-items: flex-start;
   margin-top: 35px;
   margin-bottom: 20px;
-
 }
 
 /* Description Container */
@@ -93,8 +92,8 @@
   width: 30%;
   padding: 15px;
   border-radius: 10px;
-  background-color: #2a2a2a9e; /* Darker background */
-  color: #f3f3f3; /* Light text */
+  background-color: #2a2a2a9e;
+  color: #f3f3f3;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
   margin-bottom: 10px;
 }

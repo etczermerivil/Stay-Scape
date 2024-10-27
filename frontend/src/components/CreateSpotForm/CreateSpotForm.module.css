@@ -48,7 +48,7 @@
 h3 {
   font-size: 18px;
   margin-bottom: 10px;
-  color: #ECECEC; /* Light text color */
+  color: #ECECEC;
 }
 
 .labelForm {
@@ -80,7 +80,7 @@ textarea {
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
-  background-color: #2b2b2b; /* Dark background for input fields */
+  background-color: #2b2b2b;
   color: #ECECEC;
   box-sizing: border-box;
 }
@@ -114,7 +114,7 @@ textarea {
 .buttonContainer {
   display: flex;
   justify-content: center;
-  width: 100%; /* Ensures it takes full width of the form */
+  width: 100%;
 }
 
 .createButton {
@@ -150,14 +150,14 @@ textarea {
 /* For form field descriptions and info */
 .field-description {
   font-size: 13px;
-  color: #acaaae; /* Light grey for descriptions */
+  color: #acaaae;
   margin-bottom: 10px;
   font-style: italic;
 }
 
 /* Page background to match the theme */
 body {
-  background-color: #121212; /* Dark page background */
+  background-color: #121212;
   color: #ffffff;
 }
 

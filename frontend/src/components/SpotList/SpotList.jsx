@@ -11,7 +11,7 @@ function SpotList() {
   const spots = useSelector((state) => Object.values(state.spots)); // Convert spots object to array
 
   useEffect(() => {
-    dispatch(fetchSpots()); // Fetch spots when the component mounts
+    dispatch(fetchSpots());
   }, [dispatch]);
 
   return (

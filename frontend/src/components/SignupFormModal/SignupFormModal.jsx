@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import useModal from '../../context/useModal';
 import * as sessionActions from '../../store/session';
-import styles from './SignupFormModal.module.css';  // Updated to use CSS module
+import styles from './SignupFormModal.module.css';
 
 function SignupFormModal() {
   const dispatch = useDispatch();
@@ -13,11 +13,11 @@ function SignupFormModal() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true); // New state to control button
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const { closeModal } = useModal();
 
   useEffect(() => {
-    // Check for validation conditions to enable/disable the button
+
     if (
       !email ||
       !username || username.length < 4 ||

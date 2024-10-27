@@ -51,4 +51,4 @@ export function Modal() {
   );
 }
 
-export { ModalContext }; // Export the context for use in other files
+export { ModalContext };

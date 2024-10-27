@@ -36,10 +36,10 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <LandingPage /> },  // Landing page added
-      { path: '/spots', element: <SpotList /> },  // List of all spots
-      { path: '/create-spot', element: <CreateSpotForm /> },  // Form to create new spot
-      { path: '/spots/:spotId', element: <SpotDetail /> },  // Specific spot details
+      { path: '/', element: <LandingPage /> },  // Landing page
+      { path: '/spots', element: <SpotList /> },  // All spots
+      { path: '/create-spot', element: <CreateSpotForm /> },  // Create new spot
+      { path: '/spots/:spotId', element: <SpotDetail /> },  // Spot details
       { path: '/manage-spots', element: <ManageSpotsPage /> },  // Manage spots
     ],
   },

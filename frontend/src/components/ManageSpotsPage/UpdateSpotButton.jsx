@@ -2,10 +2,10 @@
 import { useNavigate } from 'react-router-dom';
 
 const UpdateSpotButton = ({ spot }) => {
-  const navigate = useNavigate();  // Use the `useNavigate` hook
+  const navigate = useNavigate();
 
   const handleEdit = () => {
-    // Navigate to the edit page for the spot
+
     navigate(`/spots/${spot.id}/edit`);
   };
 
