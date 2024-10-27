@@ -99,7 +99,7 @@ export const createSpot = (spot) => async (dispatch) => {
     }
 
     const newSpot = await response.json();
-    dispatch(addSpot(newSpot)); // Add spot to Redux store
+    dispatch(addSpot(newSpot));
     return newSpot;
   } catch (error) {
     console.error("Request failed:", error);
@@ -124,7 +124,7 @@ export const postSpotImage = (image) => async (dispatch) => {
     if (!res.ok) throw res;
 
     const data = await res.json();
-    dispatch(addImage(data)); // Ensure addImage updates your Redux store
+    dispatch(addImage(data));
 
     return data;
   } catch (error) {
@@ -173,7 +173,7 @@ export const removeSpot = (spotId) => async (dispatch) => {
   });
 
   if (response.ok) {
-    dispatch(deleteSpot(spotId));  // Update the store
+    dispatch(deleteSpot(spotId));
   } else {
     const errorData = await response.json();
     console.error("Error deleting spot:", errorData);
@@ -189,10 +189,10 @@ export const getCurrentUserSpots = () => async (dispatch) => {
     const data = await response.json();
     console.log("Fetched user spots data:", data);
 
-    // Correctly dispatch data.Spots (capital 'S') instead of data.spots
+
     dispatch({
       type: SET_USER_SPOTS,
-      spots: data.Spots || [],  // Make sure we're using data.Spots
+      spots: data.Spots || [],
     });
   }
 };
@@ -205,7 +205,7 @@ export const updateSpotThunk = (updatedSpot, previewImage, imageUrls) => async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: updatedSpot, // No JSON.stringify
+      body: updatedSpot, // Stringify is Evil
     });
 
     if (response.ok) {
@@ -233,14 +233,14 @@ export const updateSpotThunk = (updatedSpot, previewImage, imageUrls) => async (
             body: { url, preview: false }, // No JSON.stringify
           })
         );
-        await Promise.all(imagePromises); // Wait for all image updates to complete
+        await Promise.all(imagePromises);
       }
 
       return spot; // Return updated spot
     } else {
       const error = await response.json();
       console.error('Error updating spot:', error);
-      throw error; // Ensure error is handled
+      throw error;
     }
   } catch (err) {
     console.error('Update spot thunk failed:', err);
