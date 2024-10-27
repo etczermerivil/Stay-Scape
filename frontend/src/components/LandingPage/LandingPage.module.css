@@ -150,11 +150,11 @@
 /* Tooltip Styling */
 .tooltip {
   position: absolute;
-  top: 5px;
-  left: 5px;
-  background-color: rgba(0, 0, 0, 0.699);
+  bottom: 5px;
+  right: 5px;
+  background: #44444448;
   color: #ECECEC;
-  border-radius: 5px;
+  border-radius: 3px;
   padding: 8px;
   font-size: 14px;
   pointer-events: none;
@@ -162,6 +162,7 @@
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
+
 
 
 /* Show tooltip on hover */
