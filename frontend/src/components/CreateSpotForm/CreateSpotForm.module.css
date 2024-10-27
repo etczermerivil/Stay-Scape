@@ -24,12 +24,11 @@
 .createSpotForm h2 {
   font-size: 40px;
   font-weight: 200;
-  Padding-bottom: 15px;
+  padding-bottom: 15px;
   text-align: center;
   color: #FA2B00;
   font-optical-sizing: auto;
 }
-
 .formHeading {
   color: #ECECEC;
   font-size: 20px;
