@@ -1,14 +1,13 @@
-// frontend/src/components/Navigation/ProfileButton.jsx
-
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { FaUserCircle, FaSignOutAlt, FaRegIdBadge } from 'react-icons/fa'; // Updated icons
 import * as sessionActions from '../../store/session';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
-import './ProfileButton.css';
+import styles from './ProfileButton.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faUser, faHome, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 function ProfileButton({ user }) {
   const dispatch = useDispatch();
@@ -18,15 +17,30 @@ function ProfileButton({ user }) {
 
   const toggleMenu = (e) => {
     e.stopPropagation();
+    const menuElement = document.querySelector(`.${styles.menuContainer}`);
+
+    if (showMenu) {
+      menuElement.classList.remove(styles.active);
+    } else {
+      menuElement.classList.add(styles.active);
+    }
+
     setShowMenu(!showMenu);
   };
 
+  // Ensure the active class is removed when the menu closes
   useEffect(() => {
-    if (!showMenu) return;
+    if (!showMenu) {
+      const menuElement = document.querySelector(`.${styles.menuContainer}`);
+      menuElement.classList.remove(styles.active);
+      return;
+    }
 
     const closeMenu = (e) => {
       if (ulRef.current && !ulRef.current.contains(e.target)) {
         setShowMenu(false);
+        const menuElement = document.querySelector(`.${styles.menuContainer}`);
+        menuElement.classList.remove(styles.active); // Remove active class
       }
     };
 
@@ -35,12 +49,6 @@ function ProfileButton({ user }) {
   }, [showMenu]);
 
   const closeMenu = () => setShowMenu(false);
-
-  // const logout = (e) => {
-  //   e.preventDefault();
-  //   dispatch(sessionActions.logout());
-  //   closeMenu();
-  // };
 
   const logout = (e) => {
     e.preventDefault();
@@ -54,36 +62,37 @@ function ProfileButton({ user }) {
     navigate('/manage-spots');
   };
 
-  const handleManageReviews = () => {
-    closeMenu();
-    navigate('/manage-reviews');
-  };
-
   return (
-    <div className="profile-button-container">
+    <div className={styles.profileButtonContainer}>
       <button onClick={toggleMenu}>
-        <FaUserCircle size={24} />
+        <div className={styles.menuContainer}>
+          <FontAwesomeIcon icon={faBars} className={styles.barsIcon} />
+          <FontAwesomeIcon icon={faUser} className={styles.faIcon} />
+        </div>
       </button>
-      <ul className={`profile-dropdown ${showMenu ? '' : 'hidden'}`} ref={ulRef}>
+
+      <ul className={`${styles.profileDropdown} ${showMenu ? '' : styles.hidden}`} ref={ulRef}>
         {user ? (
           <>
-            <li>
-              <FaUserCircle style={{ marginRight: '8px' }} />
-              {user.username}
+            <li className={styles.userInfo}>
+              <div className={styles.userText}>
+                <span className={styles.helloText}>Hello </span>
+                <span className={styles.userName}> {user.firstName}!</span>
+                <span>{user.email}</span>
+              </div>
             </li>
-            <li>
-              <FaRegIdBadge style={{ marginRight: '8px' }} /> {/* Different icon */}
-              {user.firstName} {user.lastName}
-            </li>
+
             <li onClick={handleManageSpots}>
-              <button className="action-link">Manage Spots</button>
+              <div className={styles.menuItem}>
+                <FontAwesomeIcon icon={faHome} style={{ fontSize: '14px', marginRight: '8px' }} />
+                <button className={`${styles.actionLink} ${styles.uppercase}`}>Manage Spots</button>
+              </div>
             </li>
-            <li onClick={handleManageReviews}>
-              <button className="action-link">Manage Reviews</button>
-          </li>
             <li onClick={logout}>
-              <FaSignOutAlt style={{ marginRight: '8px' }} />
-              Log Out
+              <div className={styles.menuItem}>
+                <FontAwesomeIcon icon={faSignOutAlt} style={{ fontSize: '14px', marginRight: '8px' }} />
+                <button className={`${styles.actionLink} ${styles.uppercase}`}>Log Out</button>
+              </div>
             </li>
           </>
         ) : (
@@ -92,11 +101,13 @@ function ProfileButton({ user }) {
               itemText="Log In"
               onItemClick={closeMenu}
               modalComponent={<LoginFormModal />}
+              className={styles.uppercase}
             />
             <OpenModalMenuItem
               itemText="Sign Up"
               onItemClick={closeMenu}
               modalComponent={<SignupFormModal />}
+              className={styles.uppercase}
             />
           </>
         )}

@@ -1,33 +1,38 @@
 import { useDispatch } from "react-redux";
-import { removeSpot, fetchSpots } from '../../store/spot';
+import { removeSpot, getCurrentUserSpots } from '../../store/spot';
 import useModal from '../../context/useModal';
-import { getCurrentUserSpots } from "../../store/spot";
+import styles from './DeleteSpotModal.module.css';
 
 const DeleteSpotModal = ({ spotId }) => {
   const dispatch = useDispatch();
-  const { closeModal } = useModal();  // Use custom modal hook
+  const { closeModal } = useModal();
 
   const handleDelete = async () => {
-    console.log("Deleting spot with ID:", spotId);
-
     await dispatch(removeSpot(spotId));
     await dispatch(getCurrentUserSpots());
-    await dispatch(fetchSpots());
     closeModal();
   };
 
-  // const handleDelete = async () => {
-  //   console.log("Deleting spot with ID:", spotId);  // Add this log to check the spotId
-  //   await dispatch(removeSpot(spotId));  // Dispatch the action to delete the spot
-  //   navigate('/manage-spots');
-  // };
+  const handleClickOutside = (e) => {
+    if (e.target.classList.contains(styles.modalBackground)) {
+      closeModal();
+    }
+  };
 
   return (
-    <div className="delete-modal">
-      <h2>Confirm Delete</h2>
-      <p>Are you sure you want to delete this spot?</p>
-      <button onClick={handleDelete}>Yes</button>
-      <button onClick={closeModal}>No</button>  {/* Close modal */}
+    <div className={styles.modalBackground} onClick={handleClickOutside}>
+      <div className={styles.modalContent}>
+        <h1 className={styles.heading}>Confirm Delete</h1>
+        <p className={styles.warningText}>Are you sure you want to delete this spot?</p>
+        <div className={styles.buttonContainer}>
+          <button onClick={handleDelete} className={styles.confirmButton}>
+            Yes (Delete Spot)
+          </button>
+          <button onClick={closeModal} className={styles.cancelButton}>
+            No (Keep Spot)
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

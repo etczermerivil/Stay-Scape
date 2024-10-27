@@ -24,14 +24,14 @@ module.exports = {
     return queryInterface.bulkInsert(options, [
       {
         spotId: spotId1,  // Dynamically fetched
-        url: 'http://example.com/demo-spot-1.jpg',
+        url: 'https://www.thepinnaclelist.com/wp-content/uploads/2016/12/01-Feldbalz-House-Luxury-Residence-Zurichsee-Zurich-Switzerland.jpg',
         preview: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         spotId: spotId2,  // Dynamically fetched
-        url: 'http://example.com/demo-spot-2.jpg',
+        url: 'https://www.pasionitaliana.com/wp-content/uploads/2020/05/Amalfi-e1631221740278.jpg',
         preview: false,
         createdAt: new Date(),
         updatedAt: new Date()

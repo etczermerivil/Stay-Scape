@@ -13,6 +13,68 @@ router.use('/:spotId/reviews', reviewsRouter);
 
 
 // GET all spots owned by the current user (authentication required)
+// router.get('/current', requireAuth, async (req, res) => {
+//   try {
+//     // Fetch spots for the current user
+//     const spots = await Spot.findAll({
+//       where: { ownerId: req.user.id },
+//       include: [
+//         {
+//           model: SpotImage,
+//           attributes: ['url', 'preview'],
+//           where: { preview: true },
+//           required: false,
+//         },
+//         {
+//           model: Review,
+//           attributes: [],
+//         }
+//       ],
+//       attributes: [
+//         'id',
+//         'ownerId',
+//         'address',
+//         'city',
+//         'state',
+//         'country',
+//         'lat',
+//         'lng',
+//         'name',
+//         'description',
+//         'price',
+//         'createdAt', // Explicitly include createdAt
+//         'updatedAt'  // Explicitly include updatedAt
+//       ]
+//     });
+
+//     // Map through spots and create the response
+//     const spotsList = spots.map(spot => ({
+//       id: spot.id,
+//       ownerId: spot.ownerId,
+//       address: spot.address,
+//       city: spot.city,
+//       state: spot.state,
+//       country: spot.country,
+//       lat: spot.lat,
+//       lng: spot.lng,
+//       name: spot.name,
+//       description: spot.description,
+//       price: spot.price,
+//       createdAt: spot.createdAt,  // Return createdAt in response
+//       updatedAt: spot.updatedAt,  // Return updatedAt in response
+//       avgRating: spot.dataValues.avgRating || null,
+//       previewImage: spot.SpotImages.length ? spot.SpotImages[0].url : null,
+//     }));
+
+//     return res.status(200).json({ Spots: spotsList });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({
+//       message: 'An error occurred while fetching user spots.',
+//     });
+//   }
+// });
+
 router.get('/current', requireAuth, async (req, res) => {
   try {
     // Fetch spots for the current user
@@ -27,7 +89,7 @@ router.get('/current', requireAuth, async (req, res) => {
         },
         {
           model: Review,
-          attributes: [],
+          attributes: [] // We are not interested in the individual reviews, just the avgRating
         }
       ],
       attributes: [
@@ -43,8 +105,14 @@ router.get('/current', requireAuth, async (req, res) => {
         'description',
         'price',
         'createdAt', // Explicitly include createdAt
-        'updatedAt'  // Explicitly include updatedAt
-      ]
+        'updatedAt',  // Explicitly include updatedAt
+        [
+          // Sequelize function to calculate the average rating
+          sequelize.fn('AVG', sequelize.col('Reviews.stars')),
+          'avgRating'
+        ]
+      ],
+      group: ['Spot.id', 'SpotImages.id'], // Group by Spot and SpotImages to avoid aggregation errors
     });
 
     // Map through spots and create the response
@@ -62,7 +130,7 @@ router.get('/current', requireAuth, async (req, res) => {
       price: spot.price,
       createdAt: spot.createdAt,  // Return createdAt in response
       updatedAt: spot.updatedAt,  // Return updatedAt in response
-      avgRating: spot.dataValues.avgRating || null,
+      avgRating: spot.dataValues.avgRating ? Number(spot.dataValues.avgRating).toFixed(2) : "New", // Format the avgRating or return "New"
       previewImage: spot.SpotImages.length ? spot.SpotImages[0].url : null,
     }));
 
@@ -74,7 +142,6 @@ router.get('/current', requireAuth, async (req, res) => {
     });
   }
 });
-
 
 
 

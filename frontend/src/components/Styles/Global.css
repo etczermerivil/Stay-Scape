@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Dongle&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+/* Apply the Beiruti font globally */
+body {
+    font-family: "Poppins", sans-serif;
+  }
+
+  #root {
+    background: linear-gradient(145deg, #202020, #151515);
+    border-radius: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  nav {
+    background-color: #1A1A1A;
+    padding: 10px 20px;
+    color: #ffffff;
+  }
+
+
+  /* Customize different headings */
+  /* h1 {
+    font-weight: 900;
+    font-size: 3rem;
+  } */
+
+
+
+
+  /* h2 {
+    font-weight: 700;
+    font-size: 2rem;
+  }
+
+
+  p, a, span {
+    font-weight: 400;
+    font-size: 1rem;
+  } */

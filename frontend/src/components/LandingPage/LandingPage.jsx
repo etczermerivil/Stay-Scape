@@ -1,71 +1,66 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSpots } from '../../store/spot'; // This should fetch all spots
+import { fetchSpots } from '../../store/spot';
 import { useNavigate } from 'react-router-dom';
-import { MdStarRate } from 'react-icons/md'; // Import the star icon
-// import { LuDot } from 'react-icons/lu';
-import './LandingPage.css'; // Adjust styling
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
+
+import styles from './LandingPage.module.css';
 
 const LandingPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const spots = useSelector((state) => state.spots.Spots); // Grabbing all spots from the store
+  const spots = useSelector((state) => state.spots.Spots);
 
   useEffect(() => {
-    dispatch(fetchSpots()); // Fetch all spots on component mount
+    dispatch(fetchSpots());
   }, [dispatch]);
 
   if (!spots || Object.keys(spots).length === 0) {
     return <div>No spots available</div>;
   }
 
-  // This function is now used and sets the onClick for each image
   const handleImageClick = (spotId) => {
-    navigate(`/spots/${spotId}`); // Navigate to spot's detail page
+    navigate(`/spots/${spotId}`);
   };
 
   return (
-    <div className="landing-page-container">
-      <h1>Explore Spots</h1>
-      <div className="all-spots-container">
+    <div className={styles.landingPageContainer}>
+      <div className={styles.allSpotsContainer}>
+        {Object.values(spots).map((spot) => {
+          const previewImage = spot.previewImage || '/path_to_placeholder_image.jpg';
+          return (
+            <div
+              key={spot.id}
+              className={styles.spotCard}
+              onClick={() => handleImageClick(spot.id)}
+              style={{ cursor: 'pointer' }}
+            >
+              <img
+                src={previewImage}
+                alt={spot.name}
+                className={styles.spotImage}
+              />
+              <span className={styles.tooltip}>{spot.name}</span>
 
-      {Object.values(spots).map((spot) => {
-  const previewImage = spot.previewImage || '/path_to_placeholder_image.jpg';
+              <div className={styles.spotInfoContainer}>
+                <p className={styles.spotLocation}>{spot.city}, {spot.state}</p>
+                <p className={styles.spotRating}>
+                  <FontAwesomeIcon icon={faStar} />
+                  {spot.avgRating && !isNaN(Number(spot.avgRating)) ? (
+                    Number(spot.avgRating).toFixed(1)
+                  ) : (
+                    "New"
+                  )}
+                </p>
+              </div>
 
-    return (
-        <div key={spot.id} className="spot-card">
-          <img
-            src={previewImage}
-            alt={spot.name}
-            className="spot-image"
-            onClick={() => handleImageClick(spot.id)}
-            style={{ cursor: 'pointer' }}
-          />
-          <h2>{spot.name}</h2>
-
-          {/* Line with city, state, and rating */}
-          <div className="spot-info">
-            <p className="spot-location">{spot.city}, {spot.state}</p>
-            <p className="spot-rating">
-              <MdStarRate />
-              {spot.avgRating && !isNaN(Number(spot.avgRating)) ? (
-                Number(spot.avgRating).toFixed(1)
-              ) : (
-                "New"
-              )}
-            </p>
-          </div>
-
-          {/* Price aligned to the right */}
-          <div className="spot-price">
-            <p>${spot.price} / night</p>
-          </div>
-        </div>
-      );
-
-})}
-
-
+              <div className={styles.spotPrice}>
+                <p>${spot.price} Night</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -197,25 +197,56 @@ export const getCurrentUserSpots = () => async (dispatch) => {
   }
 };
 
-export const updateSpotThunk = (updatedSpot) => async (dispatch) => {
-  const response = await csrfFetch(`/api/spots/${updatedSpot.id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: updatedSpot,
-  });
+export const updateSpotThunk = (updatedSpot, previewImage, imageUrls) => async (dispatch) => {
+  try {
+    // Update spot details first
+    const response = await csrfFetch(`/api/spots/${updatedSpot.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: updatedSpot, // No JSON.stringify
+    });
 
-  if (response.ok) {
-    const spot = await response.json(); // This now includes previewImage
-    console.log('Updated spot:', spot); // Log to check previewImage
-    dispatch(updateSpotAction(spot));  // Dispatch the action to update the store
-    return spot;
-  } else {
-    const error = await response.json();
-    console.error('Error updating spot:', error);
+    if (response.ok) {
+      const spot = await response.json();
+      console.log('Updated spot:', spot);
+
+      // Dispatch the action to update the spot in the Redux store
+      dispatch(updateSpotAction(spot));
+
+      // Handle preview image update if changed
+      if (previewImage && previewImage !== spot.previewImage) {
+        await csrfFetch(`/api/spots/${spot.id}/images`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: { url: previewImage, preview: true }, // No JSON.stringify
+        });
+      }
+
+      // Handle other image updates if provided
+      if (imageUrls && imageUrls.length > 0) {
+        const imagePromises = imageUrls.map((url) =>
+          csrfFetch(`/api/spots/${spot.id}/images`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: { url, preview: false }, // No JSON.stringify
+          })
+        );
+        await Promise.all(imagePromises); // Wait for all image updates to complete
+      }
+
+      return spot; // Return updated spot
+    } else {
+      const error = await response.json();
+      console.error('Error updating spot:', error);
+      throw error; // Ensure error is handled
+    }
+  } catch (err) {
+    console.error('Update spot thunk failed:', err);
   }
 };
+
 
 // Initial State
 const initialState = {

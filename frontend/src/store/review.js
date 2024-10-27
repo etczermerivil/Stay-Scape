@@ -30,7 +30,7 @@ export const deleteReview = (reviewId) => async (dispatch) => {
   const res = await csrfFetch(`/api/reviews/${reviewId}`, { method: 'DELETE' });
 
   if (res.ok) {
-    dispatch(deleteReviewAction(reviewId)); // Dispatch action to delete review from store
+    dispatch(deleteReviewAction(reviewId));
   } else {
     const errorData = await res.json();
     console.error("Error deleting review:", errorData);
@@ -43,7 +43,7 @@ export const fetchReviews = (spotId) => async (dispatch) => {
   if (res.ok) {
     const reviews = await res.json();
     console.log("Fetched reviews data:", reviews);
-    dispatch(loadReviews(reviews)); // Dispatch action to load reviews
+    dispatch(loadReviews(reviews));
   }
 };
 
@@ -54,12 +54,12 @@ export const addReview = (reviewData) => async (dispatch) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: reviewData, // Passing the plain object directly, no stringify
+      body: reviewData,
     });
 
     if (res.ok) {
       const review = await res.json();
-      dispatch(addReviewAction(review)); // Dispatch action to add review
+      dispatch(addReviewAction(review));
     } else {
       const errorData = await res.json();
       console.error("Error adding review:", errorData);
@@ -76,7 +76,7 @@ export default function reviewReducer(state = initialState, action) {
       // Handle cases where the reviews might be nested
       const reviewsArray = Array.isArray(action.reviews)
         ? action.reviews
-        : action.reviews.Reviews; // Use Reviews key if reviews are nested
+        : action.reviews.Reviews;
 
       reviewsArray.forEach((review) => {
         newState.reviews[review.id] = review;
