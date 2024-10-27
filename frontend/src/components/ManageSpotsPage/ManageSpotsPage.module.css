@@ -22,6 +22,9 @@
   height: auto;
 }
 
+
+
+
 .ManageTitleContainer {
   display: flex;
   flex-direction: column;
@@ -80,6 +83,13 @@
   /* border: 1px solid rgba(243, 243, 243, 0.1);  */
 }
 
+.noSpotsMessage{
+font-style: italic;
+color:#ECECEC ;
+margin-top: 20px;
+margin-left: 8px;
+font-weight: 300;
+}
 
 /* Styling for individual spot cards */
 .manageSpotCard {

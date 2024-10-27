@@ -17,7 +17,11 @@ const LandingPage = () => {
   }, [dispatch]);
 
   if (!spots || Object.keys(spots).length === 0) {
-    return <div>No spots available</div>;
+    return (
+      <div className={styles.noSpotsContainer}>
+        <div className={styles.noSpotsMessage}>No spots available</div>
+      </div>
+    );
   }
 
   const handleImageClick = (spotId) => {

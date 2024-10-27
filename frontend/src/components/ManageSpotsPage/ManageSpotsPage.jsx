@@ -11,7 +11,7 @@ import styles from './ManageSpotsPage.module.css';
 
 const ManageSpotsPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Make sure this hook is used
+  const navigate = useNavigate();
   const userSpots = useSelector((state) => state.spots.UserSpots);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const ManageSpotsPage = () => {
 
   // Function to navigate to CreateSpotForm
   const handleCreateNewStay = () => {
-    navigate('/create-spot');  // Ensure the route is correct
+    navigate('/create-spot');
   };
 
   return (
@@ -33,13 +33,16 @@ const ManageSpotsPage = () => {
           <button className={styles.createNewStayButton} onClick={handleCreateNewStay}>
             Create a new spot
           </button>
+          {(!userSpots || Object.keys(userSpots).length === 0) && (
+          <div className={styles.noSpotsMessage}>No spots available</div>
+  )}
+
         </div>
       </div>
 
       <div className={styles.spotsContainer}>
-        {(!userSpots || Object.keys(userSpots).length === 0) ? (
-          <div>No spots available</div>
-        ) : (
+
+
           <div className={styles.manageAllSpotsContainer}>
             {Object.values(userSpots).map((spot) => {
               const previewImage = spot.previewImage || "/path_to_placeholder_image.jpg";
@@ -50,7 +53,7 @@ const ManageSpotsPage = () => {
                     src={previewImage}
                     alt={spot.name}
                     className={styles.manageSpotImage}
-                    onClick={() => navigate(`/spots/${spot.id}`)} // Navigate to spot details
+                    onClick={() => navigate(`/spots/${spot.id}`)}
                     style={{ cursor: 'pointer' }}
                   />
 
@@ -85,7 +88,7 @@ const ManageSpotsPage = () => {
               );
             })}
           </div>
-        )}
+
       </div>
     </div>
   );

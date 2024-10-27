@@ -2,7 +2,7 @@
   display: flex;
   background-color: #121212;
   color: #ffffff;
-  padding: 20px;
+  /* padding: 20px; */
   min-height: 100vh;
   justify-content: center;
   width: 100%;
@@ -19,10 +19,24 @@
   margin-top: 13px;
   width: 100%;
   height: auto;
-
 }
-/* SPOT CARDS SPOT CARDS SPOT CARDS SPOT CARDS SPOT CARDS SPOT CARDS */
 
+.noSpotsContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  text-align: center;
+}
+
+.noSpotsMessage {
+  color:#ECECEC ;
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+/* SPOT CARDS SPOT CARDS SPOT CARDS SPOT CARDS SPOT CARDS SPOT CARDS */
 
 .spotCard {
   position: relative;
