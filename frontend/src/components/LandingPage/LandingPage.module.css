@@ -175,19 +175,64 @@
 
 /* Media queries for responsiveness */
 @media (max-width: 1200px) {
+
+  .landingPageContainer {
+   max-width: 900px;
+   width:100%;
+   margin: 0 auto;
+   background-color: #1d1d1d;
+   padding: 0 5px;
+  }
+
   .allSpotsContainer {
-    grid-template-columns: repeat(3, 1fr); /* Three spots per row */
+    max-width: 900px ;
+    width: 100%;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .spotCard {
+    position: relative;
+    max-width:269px;
+    width:100%
   }
 }
 
 @media (max-width: 900px) {
   .allSpotsContainer {
-    grid-template-columns: repeat(2, 1fr); /* Two spots per row */
+    grid-template-columns: repeat(2, 1fr);
+    margin: 0 auto;
+    padding: 0;
+    max-width: 900px;
+    width: 100%;
   }
+
+  .spotCard {
+    position: relative;
+    max-width: 269px;
+    width:100%
+  }
+
 }
 
 @media (max-width: 600px) {
   .allSpotsContainer {
-    grid-template-columns: 1fr; /* One spot per row */
+    grid-template-columns: 1fr;
+    justify-content: space-between;
+    margin-top: 10px;
+
   }
+
+  .landingPageContainer{
+    margin: 0;
+    padding: 0;
+}
+
+.allSpotsContainer {
+  .landingPageContainer{
+    margin: 0;
+    padding: 0;
+}
+
+}
+
 }

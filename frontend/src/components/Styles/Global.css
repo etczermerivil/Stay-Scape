@@ -7,7 +7,8 @@ body {
   }
 
   #root {
-    background: linear-gradient(145deg, #202020, #151515);
+    /* background: linear-gradient(145deg, #202020, #151515); */
+    background: #1a1a1a;
     border-radius: 10px;
     width: 100%;
     margin: 0;
@@ -16,28 +17,18 @@ body {
   }
 
   nav {
-    background-color: #1A1A1A;
-    padding: 10px 20px;
+    background-color: #121212;
+    /* padding: 10px 20px; */
     color: #ffffff;
   }
+/*
+  h1, h2, p, a, span {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+} */
 
 
-  /* Customize different headings */
-  /* h1 {
-    font-weight: 900;
-    font-size: 3rem;
-  } */
+@media (max-width: 330px) {
 
-
-
-
-  /* h2 {
-    font-weight: 700;
-    font-size: 2rem;
-  }
-
-
-  p, a, span {
-    font-weight: 400;
-    font-size: 1rem;
-  } */
+}
