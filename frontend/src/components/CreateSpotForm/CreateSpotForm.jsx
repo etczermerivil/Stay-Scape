@@ -81,7 +81,7 @@ function CreateSpotForm() {
             await csrfFetch(`/api/spots/${createdSpot.id}/images`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: { url, preview: true }, // Passing as a plain object
+              body: { url, preview: true },
             });
           }
         }
