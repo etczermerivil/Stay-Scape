@@ -50,7 +50,6 @@ export const fetchSpots = () => async (dispatch) => {
   const response = await fetch('/api/spots');
   if (response.ok) {
     const data = await response.json();
-
     // Log the data to verify
     console.log("Fetched spots data:", data);
 
@@ -276,29 +275,41 @@ const initialState = {
 // Reducer
 export default function spotReducer(state = initialState, action) {
   switch (action.type) {
+
     case LOAD_SPOTS: {
       const newState = { ...state, Spots: {} };
+
       action.spots.forEach((spot) => {
         newState.Spots[spot.id] = spot;
       });
       return newState;
     }
 
-
     case SET_USER_SPOTS: {
       const newState = { ...state, UserSpots: {} };
 
-      // Ensure action.spots is an array before using forEach
-      if (Array.isArray(action.spots) && action.spots.length > 0) {
-        action.spots.forEach((spot) => {
-          newState.UserSpots[spot.id] = spot;
-        });
-      } else {
-        console.log("action.spots is either undefined or empty:", action.spots);
-      }
+      action.spots.forEach((spot) => {
+        // spot.previewImage = spot.previewImage || "/path_to_placeholder_image.jpg"; // Fallback for previewImage
+        newState.UserSpots[spot.id] = spot;
+      });
 
       return newState;
     }
+
+    // case SET_USER_SPOTS: {
+    //   const newState = { ...state, UserSpots: {} };
+
+    //   // Ensure action.spots is an array before using forEach
+    //   if (Array.isArray(action.spots) && action.spots.length > 0) {
+    //     action.spots.forEach((spot) => {
+    //       newState.UserSpots[spot.id] = spot;
+    //     });
+    //   } else {
+    //     console.log("action.spots is either undefined or empty:", action.spots);
+    //   }
+
+    //   return newState;
+    // }
 
     case ADD_SPOT: {
       return {
