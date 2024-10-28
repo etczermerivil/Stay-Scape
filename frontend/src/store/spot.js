@@ -182,6 +182,23 @@ export const removeSpot = (spotId) => async (dispatch) => {
 
 
 
+// export const getCurrentUserSpots = () => async (dispatch) => {
+//   const response = await csrfFetch(`/api/spots/current`);
+
+//   if (response.ok) {
+//     const data = await response.json();
+//     console.log("Fetched user spots data:", data);
+
+
+//     dispatch({
+//       type: SET_USER_SPOTS,
+//       spots: data.Spots || [],
+//     });
+//   }
+// };
+
+
+
 export const getCurrentUserSpots = () => async (dispatch) => {
   const response = await csrfFetch(`/api/spots/current`);
 
@@ -189,13 +206,15 @@ export const getCurrentUserSpots = () => async (dispatch) => {
     const data = await response.json();
     console.log("Fetched user spots data:", data);
 
-
     dispatch({
       type: SET_USER_SPOTS,
       spots: data.Spots || [],
     });
+  } else {
+    console.error("Failed to fetch user spots");
   }
 };
+
 
 export const updateSpotThunk = (updatedSpot, previewImage, imageUrls) => async (dispatch) => {
   try {
