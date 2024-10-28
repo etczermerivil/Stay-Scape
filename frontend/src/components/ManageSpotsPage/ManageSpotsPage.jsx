@@ -18,6 +18,7 @@ const ManageSpotsPage = () => {
     dispatch(getCurrentUserSpots());
   }, [dispatch]);
 
+  console.log("Testing userSpots:", userSpots);
   // Function to navigate to CreateSpotForm
   const handleCreateNewStay = () => {
     navigate('/create-spot');
@@ -56,7 +57,6 @@ const ManageSpotsPage = () => {
                     onClick={() => navigate(`/spots/${spot.id}`)}
                     style={{ cursor: 'pointer' }}
                   />
-
                   {/* Spot Info */}
                   <div className={styles.spotInfo}>
                     <p className={styles.spotLocation}>{spot.city}, {spot.state}</p>
