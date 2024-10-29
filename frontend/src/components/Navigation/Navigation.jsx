@@ -12,7 +12,7 @@ function Navigation({ isLoaded }) {
       <nav className={styles.navBarContainer}>
         <div className={styles.navBar}>
           <div className={styles.navLeft}>
-          <NavLink to="/" className={`${styles.landingNav} ${styles.siteTitle}`}>Stay Scape</NavLink>
+          <NavLink to="/landing" className={`${styles.landingNav} ${styles.siteTitle}`}>Stay Scape</NavLink>
           </div>
           {isLoaded && (
             <div className={styles.navRight}>

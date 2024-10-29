@@ -23,7 +23,7 @@ function Layout() {
   }, [dispatch]);
 
   // Only show Navigation if the current path is not '/intro'
-  const showNavigation = location.pathname !== '/intro';
+  const showNavigation = location.pathname !== '/';
 
   return (
     <>
@@ -40,8 +40,8 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/intro', element: <HomePage /> },  // Home page with video background
-      { path: '/', element: <LandingPage /> },  // Landing page
+      { path: '/', element: <HomePage /> },  // Home page with video background
+      { path: '/landing', element: <LandingPage /> },  // Landing page
       { path: '/spots', element: <SpotList /> },  // All spots
       { path: '/create-spot', element: <CreateSpotForm /> },  // Create new spot
       { path: '/spots/:spotId', element: <SpotDetail /> },  // Spot details

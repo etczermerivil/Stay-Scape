@@ -7,7 +7,7 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   const navigateToLanding = () => {
-    navigate('/');
+    navigate('/landing');
   };
 
   return (

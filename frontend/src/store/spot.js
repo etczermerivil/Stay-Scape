@@ -296,6 +296,8 @@ export default function spotReducer(state = initialState, action) {
       return newState;
     }
 
+
+
     // case SET_USER_SPOTS: {
     //   const newState = { ...state, UserSpots: {} };
 
@@ -310,6 +312,8 @@ export default function spotReducer(state = initialState, action) {
 
     //   return newState;
     // }
+
+
 
     case ADD_SPOT: {
       return {
